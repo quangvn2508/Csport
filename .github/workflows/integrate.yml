@@ -19,5 +19,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12 
-      - run: npm ci
-      - run: npm run build
+      - name: install dependencies
+        run: npm ci
+        working-directory: frontend
+        
+      - name: build project
+        run: npm run build
+        working-directory: frontend
