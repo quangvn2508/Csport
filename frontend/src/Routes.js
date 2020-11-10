@@ -11,11 +11,11 @@ class Routes extends React.Component {
         return (
             <Switch>
                 <Route exact path="/createProblem" component={CreateProblem}/>
-                <Route exact path="/problem" component={Problem}/>
-                <Route exact path="/problems" component={Home}/>
-                <Route exact path="/rank" component={Home}/>
-                <Route exact path="/login" component={Home}/>
-                <Route exact path="/profile" component={Home}/>
+                <Route exact path="/problem/:problemId" component={Problem}/>
+                {/* <Route exact path="/problems" component={Home}/> */}
+                {/* <Route exact path="/rank" component={Home}/> */}
+                {/* <Route exact path="/login" component={Home}/> */}
+                {/* <Route exact path="/profile" component={Home}/> */}
                 <Route exact path={["/", "/home"]} component={Home}/>
                 <Route component={Invalid}/>
                 
