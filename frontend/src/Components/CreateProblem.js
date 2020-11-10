@@ -1,13 +1,12 @@
 import React from 'react';
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
-import Tabs from 'react-bootstrap/Tabs';
-import Tab from 'react-bootstrap/Tab';
 
-class ProblemStatement extends React.Component {
+class CreateProblem extends React.Component {
     state = {
         title: '',
-        statement: ''
+        statement: '',
+        testFile: null
     }
 
     editorOptions = {toolbar: [
@@ -26,55 +25,39 @@ class ProblemStatement extends React.Component {
     ]};
 
     
-    validateForm = (event) => {return true};
+    validateForm = () => {return true};
     updateTitle = (event) => {this.setState({title: event.target.value});};
     updateStatement = (value) => {this.setState({statement: value});};
+    updateTestCaseFile = (event) => {this.setState({testFile: event.target.files[0]});}
 
     submitNewProblem = (event) => {
         event.preventDefault();
+        let data = {
+            testcase: new FormData(),
+            title: this.state.title,
+            statement: this.state.title
+        };
 
-        console.log("title: " + this.state.title + "\nstatement: " + this.state.statement);
+        data.testcase.append('file', this.state.testFile);
+
+        console.log(data);
     }
-
     render() {
         return (
-            <div>
+            <div className="container">
+                <h1>Create Problem</h1>
                 <form onSubmit={this.submitNewProblem}>
-                    <input type="text" value={this.state.title} onChange={this.updateTitle}/>
+                    <h2>Problem's Statement</h2>
+                    <input type="text" value={this.state.title} placeholder="Problem title" onChange={this.updateTitle}/>
                     <input type="hidden" value={this.state.statement}/>
                     <div>
                         <SimpleMDE onChange={this.updateStatement} options={this.editorOptions}/>
                     </div>
+                    <h2>Problem's testcases</h2>
+                    <input type="file" accept=".zip" onChange={this.updateTestCaseFile}/>
                     <input type="submit" disabled={!this.validateForm()}/>
                 </form>
             </div>
-        )
-    }
-}
-
-class ProblemTestcase extends React.Component {
-    render() {
-        return (
-            <div>Test case tab</div>
-        );
-    }
-}
-
-class CreateProblem extends React.Component {
-    state = {
-        key: "statement"
-    }
-
-    render() {
-        return (
-            <Tabs id="controlled-tab-example" activeKey={this.state.key} onSelect={(k) => this.setState({key: k})}>
-                <Tab eventKey="statement" title="Problem Statement">
-                    <ProblemStatement/>
-                </Tab>
-                <Tab eventKey="testcase" title="Testcase">
-                    <ProblemTestcase/>
-                </Tab>
-            </Tabs>
         );
     }
 }
