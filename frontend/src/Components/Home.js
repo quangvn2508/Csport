@@ -1,9 +1,14 @@
 import React from 'react';
+import Navigation from './Navbar';
 
 class Home extends React.Component {
     render() {
         return (
-            <div>This is home page</div>
+            <>
+                <Navigation/>
+                <div>This is home page</div>
+            </>
+            
         );
     }
 }
