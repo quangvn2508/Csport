@@ -1,8 +1,11 @@
 import React from 'react';
+import Navigation from './Navbar';
 
 class Home extends React.Component {
     render() {
         return (
+            <>
+            <Navigation/>
             <div>
                 <h1>Csport</h1>
                 <p>Where competitive programmer create problems, solve them and climb the rank ladder.</p>
@@ -12,6 +15,7 @@ class Home extends React.Component {
                 <p>Finally, PP awarded from a problem will contribute to your total coder points (CP) accordingly.</p>
                 <p>ranking are determined by CP</p>
             </div>
+            </>
         );
     }
 }
