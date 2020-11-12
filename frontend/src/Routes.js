@@ -3,6 +3,7 @@ import { Route, Switch } from "react-router-dom";
 
 import Home from './Components/Home';
 import Problem from './Components/Problem';
+import Problems from './Components/Problems';
 import CreateProblem from './Components/CreateProblem';
 import Invalid from './Components/Invalid';
 
@@ -12,7 +13,7 @@ class Routes extends React.Component {
             <Switch>
                 <Route exact path="/createProblem" component={CreateProblem}/>
                 <Route exact path="/problem/:problemId" component={Problem}/>
-                {/* <Route exact path="/problems" component={Home}/> */}
+                <Route exact path="/problems" component={Problems}/>
                 {/* <Route exact path="/rank" component={Home}/> */}
                 {/* <Route exact path="/login" component={Home}/> */}
                 {/* <Route exact path="/profile" component={Home}/> */}
