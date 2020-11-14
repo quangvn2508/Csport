@@ -1,54 +1,69 @@
 import React from 'react';
-import { Container, Table, ProgressBar, Badge, Row, Col, Dropdown, DropdownButton } from 'react-bootstrap';
+import { Container, Table, ProgressBar, Badge, Row, Col, Dropdown, DropdownButton, Pagination } from 'react-bootstrap';
 import { Slider } from "@material-ui/core";
+
+function PageController(props) {
+    return (
+        <Pagination>
+            {props.current > 1 && 
+                <>
+                <Pagination.First onClick={() => props.update(1)}/>
+                <Pagination.Prev onClick={() => props.update(props.current - 1)}/>
+                </>
+            }
+            {
+                [...Array(props.size).keys()].map(value => {
+                    let pageNumber = value - Math.floor(props.size / 2) + props.current;
+                    if (pageNumber >= 1 && pageNumber <= props.max) {
+                        return <Pagination.Item active={pageNumber === props.current} onClick={() => props.update(pageNumber)} key={pageNumber}>{pageNumber}</Pagination.Item>
+                    } else return undefined;
+                })
+            }
+            {props.current < props.max && 
+                <>
+                <Pagination.Next onClick={() => props.update(props.current + 1)}/>
+                <Pagination.Last onClick={() => props.update(props.max)}/>
+                </>
+            }
+        </Pagination>
+    );
+}
+
+function SelectionFilter(props) {
+    return (
+        <DropdownButton variant="outline-secondary" size="sm" title={props.title}>
+            {props.selection.map(item => 
+                <Dropdown.Item key={item.value} onClick={()=>props.update(item.value)}>{item.label}</Dropdown.Item>
+            )}
+        </DropdownButton>
+    )
+}
 
 class Problems extends React.Component {
     state = {
         problemSet: [],
-        accending: true,
-        sortByKey: 'id',
-        filterDifficulty: [0, 100],
-        filterRank: null,
-        filterStatus: null,
+        filteredProblemSet: [],
+        accending: true, // Sort
+        sortByKey: 'id', // Sort
+        filterDifficulty: [0, 100], // Filter
+        filterRank: null, // Filter
+        filterStatus: null, // Filter
+        numberOfPage: 1, // Pagination
+        currentPage: 1, // Pagination
+        problemPerPage: 10 // Pagination
     }
-
+    
+    // Functions for filter
     updateDifficultyRange = (event, value) => {
-        this.setState({filterDifficulty: value});
+        this.setState({filterDifficulty: value}, this.applyFilter);
     };
 
     updateRankFilter = (value) => {
-        this.setState({filterRank: value});
+        this.setState({filterRank: value}, this.applyFilter);
     }
 
     updateStatusFilter = (value) => {
-        this.setState({filterStatus: value});
-    }
-
-    sortData = () => {
-        let sorted = [...this.state.problemSet];
-        sorted.sort((a, b) => {
-            if (a[this.state.sortByKey] < b[this.state.sortByKey])
-                return (this.state.accending? -1 : 1);
-        
-            if (a[this.state.sortByKey] > b[this.state.sortByKey])
-                return (this.state.accending? 1 : -1);
-        
-            return 0;
-        });
-        this.setState({problemSet: sorted});
-    }
-
-    requestSort = (sortKey) => {
-        if (sortKey === this.state.sortByKey) this.setState({accending: !this.state.accending}, this.sortData)
-        else this.setState({accending: true, sortByKey: sortKey}, this.sortData);
-    }
-
-    componentDidMount() {
-        this.setState({problemSet: [ {id: 1, title: "Hello World!", difficulty: 5, problemPoints: 5, ranked: true, solved: false},
-                        {id: 2, title: "Hello World!", difficulty: 15, problemPoints: 5, ranked: true, solved: true},
-                        {id: 3, title: "Hello World!", difficulty: 30, problemPoints: 5, ranked: false, solved: false},
-                        {id: 4, title: "Hello World!", difficulty: 60, problemPoints: 5, ranked: true, solved: true},
-                        {id: 5, title: "Hello Worldddddddddddddddddddddddd!", difficulty: 100, problemPoints: 5, ranked: false, solved: false}]});
+        this.setState({filterStatus: value}, this.applyFilter);
     }
 
     filterProblem(item) {
@@ -58,7 +73,51 @@ class Problems extends React.Component {
             (this.state.filterStatus === null || item.solved === this.state.filterStatus);
     }
 
-    
+    applyFilter() {
+        const filteredProblems = this.state.problemSet.filter(problem => this.filterProblem(problem));
+        this.setState({filteredProblemSet: filteredProblems, numberOfPage: Math.ceil(filteredProblems.length / this.state.problemPerPage), currentPage: 1});
+    }
+
+    // Function for pagination
+    updatePageNumber = (newPage) => {
+        this.setState({currentPage: newPage});
+    }
+
+    // Functions for sorting
+    sortData = () => {
+        let sorted = [...this.state.filteredProblemSet];
+        sorted.sort((a, b) => {
+            if (a[this.state.sortByKey] < b[this.state.sortByKey])
+                return (this.state.accending? -1 : 1);
+        
+            if (a[this.state.sortByKey] > b[this.state.sortByKey])
+                return (this.state.accending? 1 : -1);
+        
+            return 0;
+        });
+        this.setState({filteredProblemSet: sorted});
+    }
+
+    requestSort = (sortKey) => {
+        if (sortKey === this.state.sortByKey) this.setState({accending: !this.state.accending}, this.sortData)
+        else this.setState({accending: true, sortByKey: sortKey}, this.sortData);
+    }
+
+    componentDidMount() {
+        let fakeData = [];
+        for (let i = 0; i < 95; i++) {
+            fakeData.push({id: i + 1, 
+                title: "Problem number " + i, 
+                difficulty: Math.ceil(Math.random() * 100), 
+                problemPoints: Math.ceil(Math.random() * 1000),
+                ranked: (Math.random() > 0.5),
+                solved: (Math.random() > 0.5)
+            })
+        }
+        this.setState({problemSet: fakeData, filteredProblemSet: fakeData, numberOfPage: Math.ceil(fakeData.length / this.state.problemPerPage)});
+    }
+
+
     render() {
         return (<>
             <Container>
@@ -68,28 +127,21 @@ class Problems extends React.Component {
                         <div>Difficulty</div>
                     </Col>
                     <Col xs={4}>
-                        <Slider
-                            value={this.state.filterDifficulty}
-                            onChange={this.updateDifficultyRange}
-                            valueLabelDisplay="auto"
-                        />
+                        <Slider value={this.state.filterDifficulty} onChange={this.updateDifficultyRange} valueLabelDisplay="auto" />
                     </Col>
-                    <Col xs={1}>
-                        <DropdownButton variant="outline-secondary" size="sm" title=" Rank ">
-                            <Dropdown.Item onClick={()=>this.updateRankFilter(null)}>No Filter</Dropdown.Item>
-                            <Dropdown.Item onClick={()=>this.updateRankFilter(false)}>Pending</Dropdown.Item>
-                            <Dropdown.Item onClick={()=>this.updateRankFilter(true)}>Ranked</Dropdown.Item>
-                        </DropdownButton>
-                    </Col>
-                    <Col xs={1}>
-                        <DropdownButton variant="outline-secondary" size="sm" title=" Status ">
-                            <Dropdown.Item onClick={()=>this.updateStatusFilter(null)}>No Filter</Dropdown.Item>
-                            <Dropdown.Item onClick={()=>this.updateStatusFilter(false)}>Todo</Dropdown.Item>
-                            <Dropdown.Item onClick={()=>this.updateStatusFilter(true)}>Solved</Dropdown.Item>
-                        </DropdownButton>
-                    </Col>
+                    <SelectionFilter title=" Rank " update={this.updateRankFilter} selection={[
+                        {value: null, label: "No Filter"},
+                        {value: false, label: "Pending"},
+                        {value: true, label: "Ranked"}
+                    ]}/>
+                    <SelectionFilter title=" Status " update={this.updateStatusFilter} selection={[
+                        {value: null, label: "No Filter"},
+                        {value: false, label: "Todo"},
+                        {value: true, label: "Solved"}
+                    ]}/>
                 </Row>
 
+                <PageController max={this.state.numberOfPage} size={5} current={this.state.currentPage} update={this.updatePageNumber}/>
                 <Table hover>
                 <thead>
                     <tr>
@@ -109,14 +161,20 @@ class Problems extends React.Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {this.state.problemSet.filter(problem => this.filterProblem(problem)).map((problem) =>
-                        <tr key={problem.id} style={{borderLeft: problem.solved? '3px solid #00ff00' : '0px solid #ff0000'}}>
-                            <td>{problem.id}</td>
-                            <td><a style={{textDecoration: "none"}} href={"#home" + problem.id}>{problem.title}</a></td>
-                            <td><ProgressBar variant="dark" now={problem.difficulty} /></td>
-                        <td>{problem.problemPoints}</td>
-                            <td><Badge variant={problem.ranked? "success": "warning"}>{problem.ranked? "ranked" : "pending"}</Badge></td>
-                        </tr>
+                    {this.state.filteredProblemSet.map((problem, index) => {
+                        const min = (this.state.currentPage - 1) * this.state.problemPerPage;
+                        const max = min + this.state.problemPerPage - 1;
+                        
+                        if (index >= min && index <= max) {
+                            return (<tr key={problem.id} style={{borderLeft: problem.solved? '3px solid #00ff00' : ''}}>
+                                        <td>{problem.id}</td>
+                                        <td><a style={{textDecoration: "none"}} href={"#home" + problem.id}>{problem.title}</a></td>
+                                        <td><ProgressBar variant="dark" now={problem.difficulty} /></td>
+                                    <td>{problem.problemPoints}</td>
+                                        <td><Badge variant={problem.ranked? "success": "warning"}>{problem.ranked? "ranked" : "pending"}</Badge></td>
+                                    </tr>)
+                        } else return undefined;
+                    }
                     )}
                 </tbody>
                 </Table>
