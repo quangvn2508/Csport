@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, Table, ProgressBar, Badge, Row, Col, Dropdown, DropdownButton, Pagination } from 'react-bootstrap';
+import { Container, Table, ProgressBar, Badge, Row, Col,  Pagination } from 'react-bootstrap';
 import { Slider } from "@material-ui/core";
+import Selection from './Selection';
 
 function PageController(props) {
     return (
@@ -29,15 +30,7 @@ function PageController(props) {
     );
 }
 
-function SelectionFilter(props) {
-    return (
-        <DropdownButton variant="outline-secondary" size="sm" title={props.title}>
-            {props.selection.map(item => 
-                <Dropdown.Item key={item.value} onClick={()=>props.update(item.value)}>{item.label}</Dropdown.Item>
-            )}
-        </DropdownButton>
-    )
-}
+
 
 class Problems extends React.Component {
     state = {
@@ -129,12 +122,12 @@ class Problems extends React.Component {
                     <Col xs={4}>
                         <Slider value={this.state.filterDifficulty} onChange={this.updateDifficultyRange} valueLabelDisplay="auto" />
                     </Col>
-                    <SelectionFilter title=" Rank " update={this.updateRankFilter} selection={[
+                    <Selection title=" Rank " update={this.updateRankFilter} selection={[
                         {value: null, label: "No Filter"},
                         {value: false, label: "Pending"},
                         {value: true, label: "Ranked"}
                     ]}/>
-                    <SelectionFilter title=" Status " update={this.updateStatusFilter} selection={[
+                    <Selection title=" Status " update={this.updateStatusFilter} selection={[
                         {value: null, label: "No Filter"},
                         {value: false, label: "Todo"},
                         {value: true, label: "Solved"}
