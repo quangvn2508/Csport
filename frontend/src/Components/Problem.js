@@ -1,5 +1,7 @@
 import React from 'react';
 import marked from 'marked';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import Selection from './Selection';
 
 class Problem extends React.Component {
     state = {
@@ -21,7 +23,7 @@ class Problem extends React.Component {
         });
     }
 
-    changeLanguage = (event) => {this.setState({language: event.target.value});}
+    changeLanguage = (value) => {this.setState({language: value});}
     updateFile = (event) => {this.setState({code: event.target.files[0]});}
     submitCode = (event) => {
         event.preventDefault();
@@ -32,18 +34,25 @@ class Problem extends React.Component {
 
     render() {
         return (
-            <div>
+            <Container>
                 <h1>{this.state.title}</h1>
                 <article dangerouslySetInnerHTML={{__html: this.state.statement}}></article>
-                <form onSubmit={this.submitCode}>
-                    <select value={this.state.value} onChange={this.handleChange}>
-                        <option defaultChecked value="py">Python3</option>
-                        <option value="cpp">C++14</option>
-                    </select>
-                    <input type="file" accept=".cpp,.py" onChange={this.updateFile}/>
-                    <input type="submit"/>
-                </form>
-            </div>
+                <Form onSubmit={this.submitCode}>
+                    <Row>
+                        <Col xs={2}>
+                            <Selection title="Language" update={this.changeLanguage} selection={[{value: "py", label: "Python3"}, {value: "cpp", label: "C++14"}]} />
+                        </Col>
+                        
+                        <Col xs={4}>
+                            <input type="file" accept=".cpp,.py" onChange={this.updateFile}/>
+                        </Col>
+                        
+                        <Col xs={2}>
+                            <Button type="submit" variant="secondary" size="sm">Submit</Button>
+                        </Col>
+                    </Row>
+                </Form>
+            </Container>
         );
     }
 }
