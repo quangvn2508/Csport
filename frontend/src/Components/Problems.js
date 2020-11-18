@@ -161,7 +161,7 @@ class Problems extends React.Component {
                         if (index >= min && index <= max) {
                             return (<tr key={problem.id} style={{borderLeft: problem.solved? '3px solid #00ff00' : ''}}>
                                         <td>{problem.id}</td>
-                                        <td><a style={{textDecoration: "none"}} href={"#home" + problem.id}>{problem.title}</a></td>
+                                        <td><a style={{textDecoration: "none"}} href={"/problem/" + problem.id}>{problem.title}</a></td>
                                         <td><ProgressBar variant="dark" now={problem.difficulty} /></td>
                                     <td>{problem.problemPoints}</td>
                                         <td><Badge variant={problem.ranked? "success": "warning"}>{problem.ranked? "ranked" : "pending"}</Badge></td>
