@@ -8,7 +8,7 @@ function Navigation() {
         <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
                 <Nav.Link href="/problems">Problems</Nav.Link>
-                <Nav.Link href="#ranking">Ranking</Nav.Link>
+                <Nav.Link href="/rank">Ranking</Nav.Link>
             </Nav>
             <Nav>
                 <Nav.Link href="#Login">Join us</Nav.Link>
