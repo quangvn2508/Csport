@@ -2,41 +2,39 @@ import axios from 'axios';
 import React from 'react';
 import FacebookLogin from 'react-facebook-login';
 import { FACEBOOK_APP_ID, JWT_KEY } from './../config';
-import { Container } from 'react-bootstrap';
 import Cookie from 'js-cookie';
-import { Redirect } from 'react-router-dom';
+import { Modal } from 'react-bootstrap';
+import './../Style/Login.css';
 
 class Login extends React.Component {
-    state = {
-      redirect: null
-    }
+  handleHide = () => this.props.setShow(false);
 
-    facebookResponse = (res) => {
-      axios.post('/api/authorize/facebook/', {
-        token: res.accessToken
-      })
+  facebookResponse = (res) => {
+    axios.post('/api/authorize/facebook/', {
+      token: res.accessToken
+    })
       .then(res => {
         Cookie.set(JWT_KEY, res.data.jwt);
-        this.setState({redirect: '/'})
+        // Notification here
+        this.handleHide();
       })
       .catch(err => console.log(err));
-    };
+  };
 
-    onFailure = (error) => {
-      alert(error);
-    }
-
-    render() {
-      if (this.state.redirect !== null) {
-        return <Redirect to={this.state.redirect}/>
-      } else {
-        return (
-            <Container>
-                <FacebookLogin appId={FACEBOOK_APP_ID} autoLoad={false} callback={this.facebookResponse} />
-            </Container>
-        );
-      }
-    }
+  render() {
+    return (
+      <Modal show={this.props.show} onHide={this.handleHide}>
+        <Modal.Header closeButton>
+          <Modal.Title>Login with</Modal.Title>
+        </Modal.Header>
+        
+        <Modal.Body className="login-button">
+          <FacebookLogin appId={FACEBOOK_APP_ID} autoLoad={false} callback={this.facebookResponse} textButton="facebook" size="small"/>
+          <FacebookLogin appId={FACEBOOK_APP_ID} autoLoad={false} callback={this.facebookResponse} textButton="facebook" size="small"/>
+        </Modal.Body>
+      </Modal>
+    );
+  }
 }
 
 export default Login;
