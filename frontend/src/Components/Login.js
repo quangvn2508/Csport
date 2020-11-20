@@ -1,20 +1,33 @@
 import axios from 'axios';
 import React from 'react';
 import FacebookLogin from 'react-facebook-login';
-import { FACEBOOK_APP_ID, JWT_KEY } from './../config';
-import Cookie from 'js-cookie';
+import { FACEBOOK_APP_ID } from './../config';
 import { Modal } from 'react-bootstrap';
 import './../Style/Login.css';
+import { connect } from 'react-redux';
+import { setJwt, showLoginPanel } from '../redux/actions';
+
+function mapStateToProps(state) {
+    return {
+        jwt: state.jwt,
+        show: state.showLoginPanel
+    }
+}
+
+const mapDipatchToProps = {
+    setJwt,
+    showLoginPanel
+}
 
 class Login extends React.Component {
-  handleHide = () => this.props.setShow(false);
+  handleHide = () => this.props.showLoginPanel(false);
 
   facebookResponse = (res) => {
     axios.post('/api/authorize/facebook/', {
       token: res.accessToken
     })
       .then(res => {
-        Cookie.set(JWT_KEY, res.data.jwt);
+        this.props.setJwt(res.data.jwt);
         // Notification here
         this.handleHide();
       })
@@ -23,7 +36,7 @@ class Login extends React.Component {
 
   render() {
     return (
-      <Modal show={this.props.show} onHide={this.handleHide}>
+      <Modal show={this.props.show} onHide={(this.handleHide)}>
         <Modal.Header closeButton>
           <Modal.Title>Login with</Modal.Title>
         </Modal.Header>
@@ -37,4 +50,4 @@ class Login extends React.Component {
   }
 }
 
-export default Login;
+export default connect(mapStateToProps, mapDipatchToProps)(Login);
