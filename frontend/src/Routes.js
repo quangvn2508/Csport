@@ -9,7 +9,7 @@ import Invalid from './Components/Invalid';
 import Ranking from './Components/Ranking';
 import Login from './Components/Login';
 import SecuredRoute from './Components/SecuredRoute';
-
+import Profile from './Components/Profile';
 
 class Routes extends React.Component {
     render() {
@@ -20,7 +20,7 @@ class Routes extends React.Component {
                 <Route exact path="/problems" component={Problems}/>
                 <Route exact path="/rank" component={Ranking}/>
                 <Route exact path="/login" component={Login}/>
-                {/* <Route exact path="/profile" component={Home}/> */}
+                <Route exact path="/profile" component={Profile}/>
                 <Route exact path={["/", "/home"]} component={Home}/>
                 <Route component={Invalid}/>
             </Switch>
