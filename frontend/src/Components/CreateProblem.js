@@ -76,7 +76,9 @@ class CreateProblem extends React.Component {
                     </Form.Group>
                     <Form.Group controlId="formBasicEmail">
                         <Form.Control type="hidden" value={this.state.statement} placeholder="Problem title" />
+
                         <SimpleMDE ref={this.editor} onChange={this.updateStatement} options={this.editorOptions}/>
+
                     </Form.Group>
                     <hr
                         style={{
@@ -84,7 +86,9 @@ class CreateProblem extends React.Component {
                             height: 1
                         }}
                     />
+
                     <Form.Group>
+
                         <Form.Label>
                             Problem's testcase
                             <Tooltip title="How zip file should looks like?" content={
@@ -100,6 +104,7 @@ class CreateProblem extends React.Component {
                     <Form.Control type="submit" className="btn-secondary" disabled={!this.validateForm()}/>
                 </form>
             </Container>
+
             </>
         );
     }
