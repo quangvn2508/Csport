@@ -10,7 +10,7 @@ def encodeJWT(user_id):
     token = str(jwt.encode(payload, JWT_KEY, JWT_ALGORITHM))
     return token[2:-1]
 
-def decodeJWT(jwt):
-    payload = jwt.decode(jwt, JWT_KEY, algorithms = [JWT_ALGORITHM])
+def decodeJWT(_jwt):
+    payload = jwt.decode(_jwt, JWT_KEY, algorithms = [JWT_ALGORITHM])
 
     return payload['user_id']
