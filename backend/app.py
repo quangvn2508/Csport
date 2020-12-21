@@ -1,12 +1,12 @@
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from oauth import OAuthSignIn
 from jwt_util import encodeJWT, decodeJWT
 import controller
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/uploads')
 CORS(app, resources = { r"/api/*": { "origins": "*" } })
 
 # Login using OAuth2
@@ -53,6 +53,24 @@ def user_profile():
 
     return jsonify({'user': user}), 200
 
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/api/file_upload', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    
+    static_path = None
+    try:
+        static_path = controller.upload_file(file)    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+    return jsonify({'url': static_path}), 200
+
+@app.route('/api/uploads/<filename>')
+def static_dir(filename):
+    return send_from_directory('uploads', filename)
 
 # print(encodeJWT('this is my id'))
 

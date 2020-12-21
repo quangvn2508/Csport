@@ -1,4 +1,8 @@
+import uuid
+import os
+
 user_id_count = 3
+problem_id_count = 2
 database = {
     'user': [
         {
@@ -11,8 +15,19 @@ database = {
             'username': 'teopro',
             'social_id': 'facebook12415125'
         },
+    ],
+    'problem': [
+        {
+            'id': 1,
+            'title': 'problem 1',
+            'statement': 'markdown statement',
+            'test_directory': './'
+        }
     ]
 }
+
+UPLOAD_FOLDER = 'uploads/'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 class UserTable(object):
     instance = None
@@ -27,6 +42,7 @@ class UserTable(object):
 
     def add(self, _id):
         database['user'].append({'id': user_id_count, 'username': _id, 'social_id': _id})
+        user_id_count += 1
 
     def update(self):
         pass
@@ -61,3 +77,24 @@ def create_new_account(social_id):
 
 def get_user_account(social_id):
     return UserTable.getInstance().get(social_id)
+
+def file_extension_from_name(filename):
+    # Check if file name contain '.' character
+    if not '.' in filename:
+        return None
+
+    return filename.rsplit('.', 1)[1].lower()
+
+def upload_file(file):
+    # Get file extension
+    fileExtension = file_extension_from_name(file.filename)
+
+    # Check allowed extension
+
+    # Create new unique name for file
+    filename = str(uuid.uuid4()) + '.' + fileExtension
+
+    file.save(UPLOAD_FOLDER + filename)
+
+    # Return static url
+    return '/api/uploads/' + filename
