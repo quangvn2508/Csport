@@ -1,9 +1,10 @@
 import React from 'react';
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
-import { Container, Form, Button } from 'react-bootstrap';
-import Tooltip from './Tooltip';
+import { Container, Form } from 'react-bootstrap';
+// import Tooltip from './Tooltip';
 import UploadPanel from './UploadPanel';
+import axios from 'axios';
 
 class CreateProblem extends React.Component {
     state = {
@@ -43,19 +44,24 @@ class CreateProblem extends React.Component {
     validateForm = () => {return true};
     updateTitle = (event) => {this.setState({title: event.target.value});};
     updateStatement = (value) => {this.setState({statement: value})};
-    updateTestCaseFile = (event) => {this.setState({testFile: event.target.files[0]});}
+    // updateTestCaseFile = (event) => {this.setState({testFile: event.target.files[0]});}
 
     submitNewProblem = (event) => {
         event.preventDefault();
+
         let data = {
-            testcase: new FormData(),
             title: this.state.title,
             statement: this.state.statement
         };
 
-        data.testcase.append('file', this.state.testFile);
+        axios.post('/api/problem', data)
+        .then(res => {
+            console.log(res);
+        })
+        .catch(err => {
+            console.log(err);
+        })
 
-        console.log(data);
     }
     render() {
         return (
@@ -80,14 +86,14 @@ class CreateProblem extends React.Component {
                         <SimpleMDE ref={this.editor} onChange={this.updateStatement} options={this.editorOptions}/>
 
                     </Form.Group>
-                    <hr
+                    {/* <hr
                         style={{
                             backgroundColor: '#aaaaaa',
                             height: 1
                         }}
-                    />
+                    /> */}
 
-                    <Form.Group>
+                    {/* <Form.Group>
 
                         <Form.Label>
                             Problem's testcase
@@ -99,7 +105,7 @@ class CreateProblem extends React.Component {
                             }/>
                         </Form.Label>
                         <Form.Control type="file" accept=".zip" onChange={this.updateTestCaseFile}/>
-                    </Form.Group>
+                    </Form.Group> */}
                     
                     <Form.Control type="submit" className="btn-secondary" disabled={!this.validateForm()}/>
                 </form>

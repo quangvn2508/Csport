@@ -56,6 +56,7 @@ def user_profile():
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# upload a file
 @app.route('/api/file_upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
@@ -68,6 +69,22 @@ def upload_file():
     
     return jsonify({'url': static_path}), 200
 
+# Create problem
+@app.route('/api/problem', methods=['POST'])
+def create_problem():
+    title = request.json['title']
+    statement = request.json['statement']
+
+    problem_id = controller.create_new_problem(title, statement)
+
+    problem = controller.get_problem(problem_id)
+
+    if problem == None:
+        return jsonify({'error': 'Unable to create new problem'}), 400
+
+    return jsonify({'problem': problem}), 200
+
+# Access static uploaded file
 @app.route('/api/uploads/<filename>')
 def static_dir(filename):
     return send_from_directory('uploads', filename)

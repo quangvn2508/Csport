@@ -1,8 +1,6 @@
 import uuid
 import os
 
-user_id_count = 3
-problem_id_count = 2
 database = {
     'user': [
         {
@@ -31,6 +29,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 class UserTable(object):
     instance = None
+    id_count = 3
 
     # Get user from social id
     def get(self, _id):
@@ -41,8 +40,9 @@ class UserTable(object):
         return None
 
     def add(self, _id):
-        database['user'].append({'id': user_id_count, 'username': _id, 'social_id': _id})
-        user_id_count += 1
+        database['user'].append({'id': UserTable.id_count, 'username': _id, 'social_id': _id})
+        UserTable.id_count += 1
+        return UserTable.id_count - 1
 
     def update(self):
         pass
@@ -52,22 +52,30 @@ class UserTable(object):
             UserTable.instance = UserTable()
         return UserTable.instance
 
-# class ProblemTable(object):
-#     instance = None
+class ProblemTable(object):
+    instance = None
+    id_count = 2
     
-#     def get(self):
-#         pass
+    def get(self, _id):
 
-#     def add(self):
-#         pass
+        for problem in database['problem']:
+            if problem['id'] == _id:
+                return problem
+        
+        return None
 
-#     def update(self):
-#         pass
+    def add(self, title, statement):
+        database['problem'].append({'id': ProblemTable.id_count, 'title': title, 'statement': statement, 'test_directory': './'})
+        ProblemTable.id_count += 1
+        return ProblemTable.id_count - 1
 
-#     def getInstance():
-#         if not instance:
-#             instance = ProblemTable()
-#         return instance
+    def update(self):
+        pass
+
+    def getInstance():
+        if not ProblemTable.instance:
+            ProblemTable.instance = ProblemTable()
+        return ProblemTable.instance
 
 def registered_social_id(social_id):
     return UserTable.getInstance().get(social_id) != None
@@ -98,3 +106,10 @@ def upload_file(file):
 
     # Return static url
     return '/api/uploads/' + filename
+
+def create_new_problem(title, statement):
+    problem_id = ProblemTable.getInstance().add(title, statement)
+    return problem_id
+
+def get_problem(problem_id):
+    return ProblemTable.getInstance().get(problem_id)
