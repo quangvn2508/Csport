@@ -64,8 +64,8 @@ class ProblemTable(object):
         
         return None
 
-    def add(self, title, statement):
-        database['problem'].append({'id': ProblemTable.id_count, 'title': title, 'statement': statement, 'test_directory': './'})
+    def add(self, title, statement, testcase_url):
+        database['problem'].append({'id': ProblemTable.id_count, 'title': title, 'statement': statement, 'test_directory': testcase_url})
         ProblemTable.id_count += 1
         return ProblemTable.id_count - 1
 
@@ -107,8 +107,8 @@ def upload_file(file):
     # Return static url
     return '/api/uploads/' + filename
 
-def create_new_problem(title, statement):
-    problem_id = ProblemTable.getInstance().add(title, statement)
+def create_new_problem(title, statement, testcase_url):
+    problem_id = ProblemTable.getInstance().add(title, statement, testcase_url)
     return problem_id
 
 def get_problem(problem_id):
