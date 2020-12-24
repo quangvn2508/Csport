@@ -19,7 +19,10 @@ database = {
             'id': 1,
             'title': 'problem 1',
             'statement': 'markdown statement',
-            'test_directory': './'
+            'test_directory': './',
+            'difficulty': 5,
+            'problemPoints': 5,
+            'ranked': True
         }
     ]
 }
@@ -40,7 +43,11 @@ class UserTable(object):
         return None
 
     def add(self, _id):
-        database['user'].append({'id': UserTable.id_count, 'username': _id, 'social_id': _id})
+        database['user'].append({
+            'id': UserTable.id_count, 
+            'username': _id, 
+            'social_id': _id,
+        })
         UserTable.id_count += 1
         return UserTable.id_count - 1
 
@@ -55,6 +62,9 @@ class UserTable(object):
 class ProblemTable(object):
     instance = None
     id_count = 2
+
+    def getAll(self):
+        return database['problem']
     
     def get(self, _id):
 
@@ -65,7 +75,15 @@ class ProblemTable(object):
         return None
 
     def add(self, title, statement, testcase_url):
-        database['problem'].append({'id': ProblemTable.id_count, 'title': title, 'statement': statement, 'test_directory': testcase_url})
+        database['problem'].append({
+            'id': ProblemTable.id_count,
+            'title': title,
+            'statement': statement,
+            'test_directory': testcase_url,
+            'difficulty': 5,
+            'problemPoints': 5,
+            'ranked': True
+        })
         ProblemTable.id_count += 1
         return ProblemTable.id_count - 1
 
@@ -113,3 +131,6 @@ def create_new_problem(title, statement, testcase_url):
 
 def get_problem(problem_id):
     return ProblemTable.getInstance().get(problem_id)
+
+def get_list_problems():
+    return ProblemTable.getInstance().getAll()

@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Table, ProgressBar, Badge, Row, Col,  Pagination } from 'react-bootstrap';
 import { Slider } from "@material-ui/core";
 import Selection from './Selection';
+import axios from 'axios';
 
 function PageController(props) {
     return (
@@ -97,17 +98,27 @@ class Problems extends React.Component {
     }
 
     componentDidMount() {
-        let fakeData = [];
-        for (let i = 0; i < 95; i++) {
-            fakeData.push({id: i + 1, 
-                title: "Problem number " + i, 
-                difficulty: Math.ceil(Math.random() * 100), 
-                problemPoints: Math.ceil(Math.random() * 1000),
-                ranked: (Math.random() > 0.5),
-                solved: (Math.random() > 0.5)
-            })
-        }
-        this.setState({problemSet: fakeData, filteredProblemSet: fakeData, numberOfPage: Math.ceil(fakeData.length / this.state.problemPerPage)});
+        let data = [];
+        // for (let i = 0; i < 95; i++) {
+        //     data.push({id: i + 1, 
+        //         title: "Problem number " + i, 
+        //         difficulty: Math.ceil(Math.random() * 100), 
+        //         problemPoints: Math.ceil(Math.random() * 1000),
+        //         ranked: (Math.random() > 0.5),
+        //         solved: (Math.random() > 0.5)
+        //     })
+        // }
+
+        axios.get('/api/problems')
+        .then(res => {
+            if (res.status === 200) {
+                data = res.data.problems;
+                this.setState({problemSet: data, filteredProblemSet: data, numberOfPage: Math.ceil(data.length / this.state.problemPerPage)});
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
     }
 
 
