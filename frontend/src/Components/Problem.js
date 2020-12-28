@@ -2,6 +2,7 @@ import React from 'react';
 import marked from 'marked';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import Selection from './Selection';
+import axios from 'axios';
 
 class Problem extends React.Component {
     state = {
@@ -14,12 +15,19 @@ class Problem extends React.Component {
     
 
     componentDidMount() {
-        // TODO: Get Problem statement
-
-        // Example for rendering markdown
-        const text = "# Just a title of post with id " + this.state.problemId;
-        this.setState({
-            statement: marked(text)
+        axios.get('/api/problem/' + this.state.problemId)
+        .then(res => {
+            console.log(res);
+            if (res.status === 200) {
+                let problem = res.data.problem;
+                this.setState({
+                    statement: marked(problem.statement),
+                    title: problem.title
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err);
         });
     }
 

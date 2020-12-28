@@ -86,11 +86,18 @@ def create_problem():
 
     return jsonify({'problem': problem}), 200
 
+# Get problem list
 @app.route('/api/problems', methods=['GET'])
 def get_list_problems():
     problems = controller.get_list_problems()
 
     return jsonify({'problems': problems}), 200
+
+@app.route('/api/problem/<int:problem_id>')
+def get_problem(problem_id):
+    problem = controller.get_problem(problem_id)
+
+    return jsonify({'problem': problem}), 200
 
 # Access static uploaded file
 @app.route('/api/uploads/<filename>', methods=['GET'])
