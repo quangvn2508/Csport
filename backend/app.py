@@ -93,16 +93,48 @@ def get_list_problems():
 
     return jsonify({'problems': problems}), 200
 
-@app.route('/api/problem/<int:problem_id>')
+# Get a problem from id
+@app.route('/api/problem/<int:problem_id>', methods=['GET'])
 def get_problem(problem_id):
     problem = controller.get_problem(problem_id)
 
     return jsonify({'problem': problem}), 200
 
+# Submit solution to a problem with id
+@app.route('/api/submit/<int:problem_id>', methods=['POST'])
+def submit_solution(problem_id):
+    jwt = request.headers['Authorization']
+    language = request.headers['language']
+    
+    # Decode jwt to get social_id
+    social_id = None
+    try:
+        social_id = decodeJWT(jwt)
+    except Exception as e:
+        return jsonify({"error": "Invalid jwt"}), 400
+
+    code = request.files['file']
+     
+    code_path = None
+    try:
+        code_path = controller.upload_file(code)    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+    submission_id = controller.append_submission(social_id, language, code_path)
+
+    return jsonify({'submission_id': submission_id}), 200    
+
+
+
 # Access static uploaded file
 @app.route('/api/uploads/<filename>', methods=['GET'])
 def static_dir(filename):
     return send_from_directory('uploads', filename)
+
+@app.route('/api/testdb')
+def testdb():
+    return jsonify({'db': controller.printdb()}), 200
 
 # print(encodeJWT('this is my id'))
 

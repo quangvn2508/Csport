@@ -24,6 +24,14 @@ database = {
             'problemPoints': 5,
             'ranked': True
         }
+    ],
+    'submission': [
+        {
+            'id': 1,
+            'user_id': 'facebook12415223',
+            'language': 'cpp',
+            'code_path': '/api/uploads/<name>'
+        }
     ]
 }
 
@@ -95,6 +103,31 @@ class ProblemTable(object):
             ProblemTable.instance = ProblemTable()
         return ProblemTable.instance
 
+class SubmissionTable(object):
+    instance = None
+    id_count = 2
+
+    def get(self, _id):
+        pass
+
+    def add(self, user_id, language, code_path):
+        database['submission'].append({
+            'id': SubmissionTable.id_count,
+            'user_id': user_id,
+            'language': language,
+            'code_path': code_path
+        })
+        SubmissionTable.id_count += 1
+        return SubmissionTable.id_count - 1
+
+    def getInstance():
+        if not SubmissionTable.instance:
+            SubmissionTable.instance = SubmissionTable()
+        return SubmissionTable.instance
+
+
+
+# Controllers
 def registered_social_id(social_id):
     return UserTable.getInstance().get(social_id) != None
 
@@ -134,3 +167,9 @@ def get_problem(problem_id):
 
 def get_list_problems():
     return ProblemTable.getInstance().getAll()
+
+def append_submission(user_id, language, code_path):
+    return SubmissionTable.getInstance().add(user_id, language, code_path)
+
+def printdb():
+    return database
