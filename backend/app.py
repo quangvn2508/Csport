@@ -4,10 +4,11 @@ from flask_cors import CORS
 from oauth import OAuthSignIn
 from jwt_util import encodeJWT, decodeJWT
 import controller
-
+from JudgeQueue import JudgeQueue
 
 app = Flask(__name__, static_url_path='/uploads')
 CORS(app, resources = { r"/api/*": { "origins": "*" } })
+judgeQueue = JudgeQueue()
 
 # Login using OAuth2
 @app.route('/api/authorize/<provider>/', methods=['POST'])
@@ -71,15 +72,15 @@ def upload_file():
 def create_problem():
     title = request.json['title']
     statement = request.json['statement']
-    testcase_url = request.json['testcase']
+    testcase_zip_url = request.json['testcase']
 
     # Create new problem and get id
-    problem_id = controller.create_new_problem(title, statement, testcase_url)
+    problem_id = controller.create_new_problem(title, statement)
+
+    controller.extract_testcase(testcase_zip_url, problem_id)
 
     # Get created problem
     problem = controller.get_problem(problem_id)
-
-    # TODO: Extract file
 
     if problem == None:
         return jsonify({'error': 'Unable to create new problem'}), 400
@@ -99,12 +100,45 @@ def get_problem(problem_id):
 
     return jsonify({'problem': problem}), 200
 
+# Submit solution to a problem with id
+@app.route('/api/submit/<int:problem_id>', methods=['POST'])
+def submit_solution(problem_id):
+    jwt = request.headers['Authorization']
+    language = request.headers['language']
+    
+    # Decode jwt to get social_id
+    print(jwt)
+    social_id = None
+    try:
+        social_id = decodeJWT(jwt)
+    except Exception as e:
+        print(str(e))
+        return jsonify({"error": "Invalid jwt"}), 400
+
+    code = request.files['file']
+     
+    code_path = None
+    try:
+        code_path = controller.upload_file(code)    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+    submission_id = controller.append_submission(social_id, language, code_path)
+
+    # Add job to queue
+    judgeQueue.add_submission(submission_id)
+
+    return jsonify({'submission_id': submission_id}), 200    
+
 # Access static uploaded file
 @app.route('/api/uploads/<filename>', methods=['GET'])
 def static_dir(filename):
     return send_from_directory('uploads', filename)
 
-# print(encodeJWT('this is my id'))
+@app.route('/api/testdb')
+def testdb():
+    return jsonify({'db': controller.printdb()}), 200
+
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000)
