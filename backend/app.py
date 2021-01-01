@@ -1,14 +1,13 @@
 import requests
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from oauth import OAuthSignIn
-from jwt_util import encodeJWT, decodeJWT
-import controller
-from JudgeQueue import JudgeQueue
+from Account.oauth import OAuthSignIn
+from Account.jwt_util import encodeJWT, decodeJWT
+import db.controller as ctl
+from Judge.JudgeQueue import JudgeQueue
 
 app = Flask(__name__, static_url_path='/uploads')
 CORS(app, resources = { r"/api/*": { "origins": "*" } })
-judgeQueue = JudgeQueue()
 
 # Login using OAuth2
 @app.route('/api/authorize/<provider>/', methods=['POST'])
@@ -26,8 +25,8 @@ def oauth_authorize(provider):
         return jsonify({'error': 'Unable to verify'}), 401
     
     # Check if corresponding user account exist in database
-    if not controller.registered_social_id(social_id):
-        controller.create_new_account(social_id)
+    if not ctl.registered_social_id(social_id):
+        ctl.create_new_account(social_id)
 
     jwt = encodeJWT(social_id)
     
@@ -46,7 +45,7 @@ def user_profile():
         return jsonify({"error": "Invalid jwt"}), 400
 
     # Get user account from database with social_id
-    user = controller.get_user_account(social_id)
+    user = ctl.get_user_account(social_id)
 
 
     if user == None:
@@ -61,7 +60,7 @@ def upload_file():
     
     static_path = None
     try:
-        static_path = controller.upload_file(file)    
+        static_path = ctl.upload_file(file)    
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
@@ -75,12 +74,12 @@ def create_problem():
     testcase_zip_url = request.json['testcase']
 
     # Create new problem and get id
-    problem_id = controller.create_new_problem(title, statement)
+    problem_id = ctl.create_new_problem(title, statement)
 
-    controller.extract_testcase(testcase_zip_url, problem_id)
+    ctl.extract_testcase(testcase_zip_url, problem_id)
 
     # Get created problem
-    problem = controller.get_problem(problem_id)
+    problem = ctl.get_problem(problem_id)
 
     if problem == None:
         return jsonify({'error': 'Unable to create new problem'}), 400
@@ -90,13 +89,13 @@ def create_problem():
 # Get problem list
 @app.route('/api/problems', methods=['GET'])
 def get_list_problems():
-    problems = controller.get_list_problems()
+    problems = ctl.get_list_problems()
 
     return jsonify({'problems': problems}), 200
 
 @app.route('/api/problem/<int:problem_id>')
 def get_problem(problem_id):
-    problem = controller.get_problem(problem_id)
+    problem = ctl.get_problem(problem_id)
 
     return jsonify({'problem': problem}), 200
 
@@ -107,7 +106,6 @@ def submit_solution(problem_id):
     language = request.headers['language']
     
     # Decode jwt to get social_id
-    print(jwt)
     social_id = None
     try:
         social_id = decodeJWT(jwt)
@@ -117,16 +115,16 @@ def submit_solution(problem_id):
 
     code = request.files['file']
      
-    code_path = None
+    code_url = None
     try:
-        code_path = controller.upload_file(code)    
+        code_url = ctl.upload_file(code)    
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
-    submission_id = controller.append_submission(social_id, language, code_path)
+    submission_id = ctl.append_submission(social_id, language, code_url, problem_id)
 
     # Add job to queue
-    judgeQueue.add_submission(submission_id)
+    JudgeQueue.getInstance().add_submission(submission_id)
 
     return jsonify({'submission_id': submission_id}), 200    
 
@@ -137,7 +135,7 @@ def static_dir(filename):
 
 @app.route('/api/testdb')
 def testdb():
-    return jsonify({'db': controller.printdb()}), 200
+    return jsonify({'db': ctl.printdb()}), 200
 
 
 if __name__ == '__main__':

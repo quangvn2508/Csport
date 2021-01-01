@@ -1,3 +1,5 @@
+from Judge.SubmissionResult import SubmissionResult
+
 database = {
     'user': [
         {
@@ -27,7 +29,7 @@ database = {
             'user_id': 'facebook12415223',
             'language': 'cpp',
             'code_path': '/api/uploads/<name>',
-            'verdict': 'pending'
+            'verdict': None
         }
     ]
 }
@@ -103,20 +105,25 @@ class SubmissionTable(object):
     id_count = 2
 
     def get(self, _id):
-        pass
+        for submission in database['submission']:
+            if submission['id'] == _id:
+                return submission
+        
+        return None
 
-    def add(self, user_id, language, code_path):
+    def add(self, user_id, language, code_path, problem_id):
         database['submission'].append({
             'id': SubmissionTable.id_count,
             'user_id': user_id,
+            'problem_id': problem_id,
             'language': language,
             'code_path': code_path,
-            'verdict': 'pending'
+            'verdict': None
         })
         SubmissionTable.id_count += 1
         return SubmissionTable.id_count - 1
 
-    def update_verdict(self, submission_id, verdict):
+    def update_verdict(self, submission_id: int, verdict: SubmissionResult):
         for submission in database['submission']:
             if submission['id'] == submission_id:
                 submission['verdict'] = verdict

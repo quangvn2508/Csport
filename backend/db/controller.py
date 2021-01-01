@@ -1,7 +1,8 @@
 import uuid
 import os
 import zipfile
-from dao import UserTable, ProblemTable, SubmissionTable, database
+from db.dao import UserTable, ProblemTable, SubmissionTable, database
+from Judge.SubmissionResult import SubmissionResult
 
 UPLOAD_FOLDER = 'uploads/'
 TESTCASE_FOLDER = 'testcases/'
@@ -48,20 +49,30 @@ def get_problem(problem_id):
 def get_list_problems():
     return ProblemTable.getInstance().getAll()
 
-def append_submission(user_id, language, code_path):
-    return SubmissionTable.getInstance().add(user_id, language, code_path)
+def append_submission(user_id, language, code_url, problem_id):
+    path_to_code_file = UPLOAD_FOLDER + code_url.rsplit('/',1)[1]
+    return SubmissionTable.getInstance().add(user_id, language, path_to_code_file, problem_id)
 
 def update_verdict(submission_id, verdict):
     SubmissionTable.getInstance().update_verdict(submission_id, verdict)
 
+def problem_testcase_directory(problem_id: int):
+    return TESTCASE_FOLDER + 'problem_' + str(problem_id) + '/'
+
 def extract_testcase(zip_url:str, problem_id: int):
     path_to_zip_file = UPLOAD_FOLDER + zip_url.rsplit('/',1)[1]
-    directory_to_extract_to = TESTCASE_FOLDER + 'problem_' + str(problem_id)
+    directory_to_extract_to = problem_testcase_directory(problem_id)
     
     os.mkdir(directory_to_extract_to)
 
     with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
         zip_ref.extractall(directory_to_extract_to)
+
+def get_submission(submission_id: int):
+    return SubmissionTable.getInstance().get(submission_id)
+
+def finish_judge_submission(submission_id: int, result: SubmissionResult):
+    SubmissionTable.getInstance().update_verdict(submission_id, result.to_json())
 
 def printdb():
     return database
