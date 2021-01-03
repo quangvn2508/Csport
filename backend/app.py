@@ -93,7 +93,8 @@ def get_list_problems():
 
     return jsonify({'problems': problems}), 200
 
-@app.route('/api/problem/<int:problem_id>')
+# Get a problem from id
+@app.route('/api/problem/<int:problem_id>', methods=['GET'])
 def get_problem(problem_id):
     problem = ctl.get_problem(problem_id)
 
@@ -110,7 +111,6 @@ def submit_solution(problem_id):
     try:
         social_id = decodeJWT(jwt)
     except Exception as e:
-        print(str(e))
         return jsonify({"error": "Invalid jwt"}), 400
 
     code = request.files['file']

@@ -44,7 +44,6 @@ class Problem extends React.Component {
         event.preventDefault();
         console.log(this.state.language);
         console.log(this.state.code);
-
         let data = new FormData();
 
         data.append('file', this.state.code);
@@ -92,5 +91,4 @@ class Problem extends React.Component {
         );
     }
 }
-
 export default connect(mapStateToProps, null)(Problem);
