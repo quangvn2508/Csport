@@ -5,7 +5,7 @@ import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import Tooltip from './Tooltip';
 import UploadPanel from './UploadPanel';
 import axios from 'axios';
-import DownloadFromUrl from './Util';
+import { DownloadFromUrl } from './Util';
 
 class CreateProblem extends React.Component {
     state = {

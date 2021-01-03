@@ -1,37 +1,9 @@
 import React from 'react';
-import { Container, Table, ProgressBar, Badge, Row, Col,  Pagination } from 'react-bootstrap';
+import { Container, Table, ProgressBar, Badge, Row, Col } from 'react-bootstrap';
 import { Slider } from "@material-ui/core";
 import Selection from './Selection';
 import axios from 'axios';
-
-function PageController(props) {
-    return (
-        <Pagination>
-            {props.current > 1 && 
-                <>
-                <Pagination.First onClick={() => props.update(1)}/>
-                <Pagination.Prev onClick={() => props.update(props.current - 1)}/>
-                </>
-            }
-            {
-                [...Array(props.size).keys()].map(value => {
-                    let pageNumber = value - Math.floor(props.size / 2) + props.current;
-                    if (pageNumber >= 1 && pageNumber <= props.max) {
-                        return <Pagination.Item active={pageNumber === props.current} onClick={() => props.update(pageNumber)} key={pageNumber}>{pageNumber}</Pagination.Item>
-                    } else return undefined;
-                })
-            }
-            {props.current < props.max && 
-                <>
-                <Pagination.Next onClick={() => props.update(props.current + 1)}/>
-                <Pagination.Last onClick={() => props.update(props.max)}/>
-                </>
-            }
-        </Pagination>
-    );
-}
-
-
+import { PageController } from './Util';
 
 class Problems extends React.Component {
     state = {
