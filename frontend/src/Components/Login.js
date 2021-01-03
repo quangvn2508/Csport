@@ -42,8 +42,11 @@ class Login extends React.Component {
         </Modal.Header>
         
         <Modal.Body className="login-button">
-          <FacebookLogin appId={FACEBOOK_APP_ID} autoLoad={false} callback={this.facebookResponse} textButton="facebook" size="small"/>
-          <FacebookLogin appId={FACEBOOK_APP_ID} autoLoad={false} callback={this.facebookResponse} textButton="facebook" size="small"/>
+          <FacebookLogin 
+            appId={FACEBOOK_APP_ID}
+            autoLoad={false} 
+            callback={this.facebookResponse} 
+            textButton="facebook" size="small"/>
         </Modal.Body>
       </Modal>
     );
