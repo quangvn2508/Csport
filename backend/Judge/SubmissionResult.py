@@ -1,11 +1,11 @@
 from enum import Enum
 
 class Verdict(Enum):
-    TLE = 'Time Limit Exceed'
-    AC = 'Accept'
-    WA = 'Wrong Answer'
-    CE = 'Compilation Error'
-    RE = 'Runtime Error'
+    TIME_LIMIT_EXCEED = 'TLE'
+    ACCEPT = 'AC'
+    WRONG_ANSWER = 'WA'
+    COMPILATION_ERROR = 'CE'
+    RUNTIME_ERROR = 'RE'
 
 class TestcaseResult(object):
     def __init__(self, test_no: int, duration: float, verdict: Verdict):

@@ -26,10 +26,39 @@ database = {
     'submission': [
         {
             'id': 1,
-            'user_id': 'facebook12415223',
+            'user_id': '410945223266976',
+            'problem_id': 1,
             'language': 'cpp',
             'code_path': '/api/uploads/<name>',
-            'verdict': None
+            'verdict': {
+                'status': True,
+                'log': 'any error?',
+                'testcases': [
+                    {'test_no': 0, 'duration': 0.5, 'verdict': 'AC'},
+                    {'test_no': 1, 'duration': 0.5, 'verdict': 'AC'},
+                    {'test_no': 2, 'duration': 0.5, 'verdict': 'AC'},
+                    {'test_no': 3, 'duration': 0.5, 'verdict': 'AC'},
+                    {'test_no': 4, 'duration': 0.5, 'verdict': 'AC'}
+                ]
+            }
+        },
+        {
+            'id': 2,
+            'user_id': '410945223266976',
+            'problem_id': 1,
+            'language': 'py',
+            'code_path': '/api/uploads/<name>',
+            'verdict': {
+                'status': True,
+                'log': 'any error?',
+                'testcases': [
+                    {'test_no': 0, 'duration': 0.5, 'verdict': 'AC'},
+                    {'test_no': 1, 'duration': 0.5, 'verdict': 'AC'},
+                    {'test_no': 2, 'duration': 0.5, 'verdict': 'AC'},
+                    {'test_no': 3, 'duration': 0.5, 'verdict': 'AC'},
+                    {'test_no': 4, 'duration': 0.5, 'verdict': 'AC'}
+                ]
+            }
         }
     ]
 }
@@ -102,7 +131,7 @@ class ProblemTable(object):
 
 class SubmissionTable(object):
     instance = None
-    id_count = 2
+    id_count = 3
 
     def get(self, _id):
         for submission in database['submission']:

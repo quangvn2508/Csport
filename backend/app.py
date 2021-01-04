@@ -126,7 +126,31 @@ def submit_solution(problem_id):
     # Add job to queue
     JudgeQueue.getInstance().add_submission(submission_id)
 
-    return jsonify({'submission_id': submission_id}), 200    
+    return jsonify({'submission_id': submission_id}), 200
+
+# Get a submission
+@app.route('/api/submission/<int:submission_id>', methods=['GET'])
+def get_submission(submission_id):
+    jwt = request.headers['Authorization']
+
+    # Decode jwt to get social_id
+    social_id = None
+    try:
+        social_id = decodeJWT(jwt)
+    except Exception as e:
+        return jsonify({"error": "Invalid jwt"}), 400
+    
+    submission = ctl.get_submission(submission_id)
+
+    # Check if submission with id exist
+    if submission == None:
+        return jsonify({'error': 'submission not found'}), 404
+    
+    # Check if submission belong to requested user
+    if submission['user_id'] != social_id:
+        return jsonify({'error': 'You are not allow to view others\' submission'}), 403
+    
+    return jsonify({'submission': submission}), 200
 
 # Access static uploaded file
 @app.route('/api/uploads/<filename>', methods=['GET'])

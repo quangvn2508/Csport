@@ -8,7 +8,6 @@ limits = {
     'cpp': {'cputime': 2, 'memory': 128}
 }
 
-
 # Get all non-empty lines from string
 def get_non_empty_lines(s: str):
     return [l.strip() for l in s.splitlines() if l.strip()]
@@ -39,18 +38,18 @@ def get_input_expected_output(testcase_dir: str, test_no: int):
 # Process output from sandbox and set result for each test case
 def process_output(test_no: int, output, expected: str, result: SubmissionResult):
     if output['exit_code'] != 0:
-        result.add_testcase_verdict(test_no, False, Verdict.RE, 0)
+        result.add_testcase_verdict(test_no, False, Verdict.RUNTIME_ERROR, 0)
         result.add_log(output['stderr'].decode())
         return
     
     if output['timeout']:
-        result.add_testcase_verdict(test_no, False, Verdict.TLE, output['duration'])
+        result.add_testcase_verdict(test_no, False, Verdict.TIME_LIMIT_EXCEED, output['duration'])
 
     elif compare_output(expected, output['stdout'].decode()):
-        result.add_testcase_verdict(test_no, True, Verdict.AC, output['duration'])
+        result.add_testcase_verdict(test_no, True, Verdict.ACCEPT, output['duration'])
 
     else:
-        result.add_testcase_verdict(test_no, False, Verdict.WA, output['duration'])
+        result.add_testcase_verdict(test_no, False, Verdict.WRONG_ANSWER, output['duration'])
         
 # Run python code
 def python(code: str, testcase_dir: str) -> SubmissionResult:
@@ -101,7 +100,7 @@ def cpp(code: str, testcase_dir: str) -> SubmissionResult:
         compilation_output = epicbox.run('gcc_compile', 'g++ -std=c++14 -O2 -o main main.cpp', files=files, workdir=workdir)
 
         if compilation_output['exit_code'] != 0:
-            result.add_testcase_verdict(test_no, False, Verdict.CE, 0)
+            result.add_testcase_verdict(test_no, False, Verdict.COMPILATION_ERROR, 0)
             result.add_log(compilation_output['stderr'])
             return result
         

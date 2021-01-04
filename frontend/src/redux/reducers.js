@@ -3,7 +3,7 @@ import Cookie from 'js-cookie';
 import { JWT_KEY } from '../config';
 
 const initalState = {
-    jwt: null,
+    jwt: Cookie.get(JWT_KEY),
     showLoginPanel: false,
     notification: null
 };

@@ -73,6 +73,6 @@ def get_submission(submission_id: int):
 
 def finish_judge_submission(submission_id: int, result: SubmissionResult):
     SubmissionTable.getInstance().update_verdict(submission_id, result.to_json())
-
+    
 def printdb():
     return database
