@@ -1,16 +1,19 @@
 import React from 'react';
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
-import { Container, Form, Button } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import Tooltip from './Tooltip';
 import UploadPanel from './UploadPanel';
+import axios from 'axios';
+import { DownloadFromUrl } from './Util';
 
 class CreateProblem extends React.Component {
     state = {
         title: '',
         statement: '',
-        testFile: null,
-        showFileUploadPanel: false
+        showImageUpload: false,
+        showZipUpload: false,
+        testcaseUrl: null
     }
 
     constructor(props) {
@@ -18,8 +21,12 @@ class CreateProblem extends React.Component {
         this.editor = React.createRef();
     }
 
-    openFileSubmit = () => {
-        this.setState({showFileUploadPanel: true});
+    openImageSubmit = () => {
+        this.setState({ showImageUpload: true });
+    }
+
+    openTestCaseSubmit = () => {
+        this.setState({ showZipUpload: true });
     }
 
     editorOptions = {
@@ -30,7 +37,7 @@ class CreateProblem extends React.Component {
             "link",
             {
                 name: "custom-image",
-                action: this.openFileSubmit,
+                action: this.openImageSubmit,
                 className: "fa fa-picture-o",
                 title: "Insert image",
             },
@@ -39,71 +46,101 @@ class CreateProblem extends React.Component {
         ],
         placeholder: '# Your problem statement here'
     };
-    
-    validateForm = () => {return true};
-    updateTitle = (event) => {this.setState({title: event.target.value});};
-    updateStatement = (value) => {this.setState({statement: value})};
-    updateTestCaseFile = (event) => {this.setState({testFile: event.target.files[0]});}
+    validateForm = () => { return true };
+    updateTitle = (event) => { this.setState({ title: event.target.value }); };
+    updateStatement = (value) => { this.setState({ statement: value }) };
 
     submitNewProblem = (event) => {
         event.preventDefault();
+
         let data = {
-            testcase: new FormData(),
             title: this.state.title,
-            statement: this.state.statement
+            statement: this.state.statement,
+            testcase: this.state.testcaseUrl
         };
 
-        data.testcase.append('file', this.state.testFile);
+        axios.post('/api/problem', data)
+            .then(res => {
+                console.log(res);
+            })
+            .catch(err => {
+                console.log(err);
+            })
 
-        console.log(data);
     }
+
+    downloadTestcase = () => {
+        DownloadFromUrl(this.state.testcaseUrl);
+    }
+
     render() {
         return (
             <>
-            <UploadPanel
-                show={this.state.showFileUploadPanel}
-                onHide={() => this.setState({showFileUploadPanel: false})}
-                accept="image/*"
-                onSuccess={(url) => {
-                    this.editor.current.simpleMde.value(this.state.statement + `\n![](${url})\n`);
-                }}
-            />
-            <Container className="mb-5">
-                <h1>Create Problem</h1>
-                <form onSubmit={this.submitNewProblem}>
-                    <Form.Group>
-                        <Form.Control type="text" value={this.state.title} onChange={this.updateTitle} placeholder="Problem title" />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicEmail">
-                        <Form.Control type="hidden" value={this.state.statement} placeholder="Problem title" />
+                <UploadPanel
+                    show={this.state.showImageUpload}
+                    onHide={() => this.setState({ showImageUpload: false })}
+                    accept="image/*"
+                    onSuccess={(url) => {
+                        this.editor.current.simpleMde.value(this.state.statement + `\n![](${url})\n`);
+                    }}
+                />
+                <UploadPanel
+                    show={this.state.showZipUpload}
+                    onHide={() => this.setState({ showZipUpload: false })}
+                    accept=".zip"
+                    onSuccess={(url) => {
+                        this.setState({ testcaseUrl: url });
+                    }}
+                />
+                <Container className="mb-5">
+                    <h1>Create Problem</h1>
+                    <form onSubmit={this.submitNewProblem}>
+                        <Form.Group>
+                            <Form.Control type="text" value={this.state.title} onChange={this.updateTitle} placeholder="Problem title" />
+                        </Form.Group>
+                        <Form.Group controlId="formBasicEmail">
+                            <Form.Control type="hidden" value={this.state.statement} placeholder="Problem title" />
 
-                        <SimpleMDE ref={this.editor} onChange={this.updateStatement} options={this.editorOptions}/>
+                            <SimpleMDE ref={this.editor} onChange={this.updateStatement} options={this.editorOptions} />
 
-                    </Form.Group>
-                    <hr
-                        style={{
-                            backgroundColor: '#aaaaaa',
-                            height: 1
-                        }}
-                    />
+                        </Form.Group>
+                        <hr
+                            style={{
+                                backgroundColor: '#aaaaaa',
+                                height: 1
+                            }}
+                        />
 
-                    <Form.Group>
+                        <Form.Group>
 
-                        <Form.Label>
-                            Problem's testcase
+                            <Form.Label>
+                                Problem's testcase
                             <Tooltip title="How zip file should looks like?" content={
-                                <>
-                                    <p>Contain input and output files <strong>input_[id].txt</strong> and <strong>output_[id].txt</strong></p>
-                                    <Button variant="secondary" href="/" target="_blank">Example testcase file</Button>
-                                </>
-                            }/>
-                        </Form.Label>
-                        <Form.Control type="file" accept=".zip" onChange={this.updateTestCaseFile}/>
-                    </Form.Group>
-                    
-                    <Form.Control type="submit" className="btn-secondary" disabled={!this.validateForm()}/>
-                </form>
-            </Container>
+                                    <>
+                                        <p>Contain input and output files <strong>input_[id].txt</strong> and <strong>output_[id].txt</strong></p>
+                                        <Button variant="secondary" href="/" target="_blank">Example testcase file</Button>
+                                    </>
+                                } />
+                            </Form.Label>
+                            <Row>
+                                <Col sm="4">
+                                    <Button className="btn btn-secondary" onClick={this.openTestCaseSubmit}>Upload test case</Button>
+                                </Col>
+
+                                <Col sm="4">
+                                    {
+                                        this.state.testcaseUrl === null ?
+                                            <div className="btn">No testcase uploaded</div> :
+                                            <Button className="btn btn-secondary" onClick={this.downloadTestcase}>Download testcase</Button>
+                                    }
+
+                                </Col>
+                            </Row>
+                        </Form.Group>
+
+                        <Form.Control type="submit" className="btn-secondary" disabled={!this.validateForm()} />
+                    </form>
+                </Container>
 
             </>
         );

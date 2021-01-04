@@ -2,6 +2,14 @@ import React from 'react';
 import marked from 'marked';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import Selection from './Selection';
+import axios from 'axios';
+import { connect } from 'react-redux';
+
+function mapStateToProps(state) {
+    return {
+        jwt: state.jwt
+    }
+}
 
 class Problem extends React.Component {
     state = {
@@ -14,12 +22,19 @@ class Problem extends React.Component {
     
 
     componentDidMount() {
-        // TODO: Get Problem statement
-
-        // Example for rendering markdown
-        const text = "# Just a title of post with id " + this.state.problemId;
-        this.setState({
-            statement: marked(text)
+        axios.get('/api/problem/' + this.state.problemId)
+        .then(res => {
+            console.log(res);
+            if (res.status === 200) {
+                let problem = res.data.problem;
+                this.setState({
+                    statement: marked(problem.statement),
+                    title: problem.title
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err);
         });
     }
 
@@ -29,7 +44,27 @@ class Problem extends React.Component {
         event.preventDefault();
         console.log(this.state.language);
         console.log(this.state.code);
-        // TODO: Submit code to evaluate
+        let data = new FormData();
+
+        data.append('file', this.state.code);
+
+        let header = {
+            'Authorization': this.props.jwt,
+            'language': this.state.language
+        };
+
+        console.log(header);
+
+        axios.post('/api/submit/' + this.state.problemId, data, {
+            headers: header
+        })
+        .then(res => {
+            console.log(res);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
     }
 
     render() {
@@ -56,4 +91,4 @@ class Problem extends React.Component {
         );
     }
 }
-export default Problem;
+export default connect(mapStateToProps, null)(Problem);
