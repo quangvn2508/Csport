@@ -46,7 +46,6 @@ class CreateProblem extends React.Component {
         ],
         placeholder: '# Your problem statement here'
     };
-
     validateForm = () => { return true };
     updateTitle = (event) => { this.setState({ title: event.target.value }); };
     updateStatement = (value) => { this.setState({ statement: value }) };

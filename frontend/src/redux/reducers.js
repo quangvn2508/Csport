@@ -1,4 +1,5 @@
 import { SET_JWT, REMOVE_JWT, SET_LOGIN_PANEL, ADD_MESSAGE, ADD_ERROR, REMOVE_NOTIFICATION } from './actionTypes';
+
 import Cookie from 'js-cookie';
 import { JWT_KEY } from '../config';
 
