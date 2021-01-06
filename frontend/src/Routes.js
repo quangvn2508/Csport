@@ -19,8 +19,8 @@ class Routes extends React.Component {
                 <Route exact path="/problem/:problemId" component={Problem}/>
                 <Route exact path="/problems" component={Problems}/>
                 <Route exact path="/rank" component={Ranking}/>
-                <Route exact path="/profile" component={Profile}/>
-                <Route exact path="/submission/:submissionId" component={Submission}/>
+                <Route exact path="/profile/:userId" component={Profile}/>
+                <SecuredRoute exact path="/submission/:submissionId" component={Submission}/>
                 <Route exact path={["/", "/home"]} component={Home}/>
                 <Route component={Invalid}/>
             </Switch>

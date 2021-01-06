@@ -16,7 +16,7 @@ function reducer(state = initalState, action) {
             return {...state, jwt: action.data};
         case REMOVE_JWT:
             Cookie.remove(JWT_KEY);
-            return {...state, jwt: null};
+            return {...state, jwt: undefined};
         case SET_LOGIN_PANEL:
             return {...state, showLoginPanel: action.data};
         case ADD_MESSAGE:
