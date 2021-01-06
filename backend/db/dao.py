@@ -1,4 +1,7 @@
 from Judge.SubmissionResult import SubmissionResult
+import sqlite3
+from sqlite3 import Error
+from db.queries import *
 
 database = {
     'user': [
@@ -30,17 +33,15 @@ database = {
             'problem_id': 1,
             'language': 'cpp',
             'code_path': '/api/uploads/<name>',
-            'verdict': {
-                'status': True,
-                'log': 'any error?',
-                'testcases': [
-                    {'test_no': 0, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 1, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 2, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 3, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 4, 'duration': 0.5, 'verdict': 'AC'}
-                ]
-            }
+            'status': True,
+            'log': 'any error?',
+            'testcases': [
+                {'test_no': 0, 'duration': 0.5, 'verdict': 'AC'},
+                {'test_no': 1, 'duration': 0.5, 'verdict': 'AC'},
+                {'test_no': 2, 'duration': 0.5, 'verdict': 'AC'},
+                {'test_no': 3, 'duration': 0.5, 'verdict': 'AC'},
+                {'test_no': 4, 'duration': 0.5, 'verdict': 'AC'}
+            ]
         },
         {
             'id': 2,
@@ -48,20 +49,52 @@ database = {
             'problem_id': 1,
             'language': 'py',
             'code_path': '/api/uploads/<name>',
-            'verdict': {
-                'status': True,
-                'log': 'any error?',
-                'testcases': [
-                    {'test_no': 0, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 1, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 2, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 3, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 4, 'duration': 0.5, 'verdict': 'AC'}
-                ]
-            }
+            'status': True,
+            'log': 'any error?',
+            'testcases': [
+                {'test_no': 0, 'duration': 0.5, 'verdict': 'AC'},
+                {'test_no': 1, 'duration': 0.5, 'verdict': 'AC'},
+                {'test_no': 2, 'duration': 0.5, 'verdict': 'AC'},
+                {'test_no': 3, 'duration': 0.5, 'verdict': 'AC'},
+                {'test_no': 4, 'duration': 0.5, 'verdict': 'AC'}
+            ]
         }
     ]
 }
+
+class SqliteConnector(object):
+    DB_FILE = 'database.db'
+    def __init__(self):
+        self.conn = create_connection(SqliteConnector.DB_FILE)
+        self.db_query(USER_CREATE_TABLE)
+        self.db_query(PROBLEM_CREATE_TABLE)
+        self.db_query(SUBMISSION_CREATE_TABLE)
+        self.db_query(TESTCASE_VERDICT_CREATE_TABLE)
+
+    def create_connection(self, db):
+        conn = None
+        try:
+            conn = sqlite3.connect(db)
+        except Error as e:
+            print(e)
+        
+        return conn
+
+    def db_query(self, query, t = ()):
+        result = None
+        try:
+            c = self.conn.cursor()
+            result = c.execute(query, t)
+            self.conn.commit()
+        except Error as e:
+            print(e)
+        
+        return result
+    
+    def close_connection(self):
+        self.conn.close()
+
+db = SqliteConnector()
 
 class UserTable(object):
     instance = None
