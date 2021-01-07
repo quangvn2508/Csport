@@ -18,7 +18,8 @@ class Submission extends React.Component {
         status: true,
         total_time: 1.05,
         ranking: 'N/A',
-        pp: 'N/A'
+        pp: 'N/A',
+        log: ''
     }
 
     submissionId = this.props.match.params.submissionId;
@@ -54,7 +55,8 @@ class Submission extends React.Component {
                     problem: submission.problem_id,
                     language: submission.language,
                     status: submission.verdict.status,
-                    testcases: submission.verdict.testcases
+                    testcases: submission.verdict.testcases,
+                    log: submission.verdict.log
                 });
             }
         })
@@ -67,64 +69,66 @@ class Submission extends React.Component {
         return (<>
             <Container>
                 <h1>Submission {this.submissionId}</h1>
-                <Row className="mt-5">
-                    <Col md='4'>
-                        <Card bg="light" className="card">
-                            <ListGroup>
-                                <ListGroup.Item action href='#' className="d-flex justify-content-between">
-                                    <div>Problem</div>
-                                    <span>{this.state.problem}</span>
-                                </ListGroup.Item>
-                                <ListGroup.Item className="d-flex justify-content-between">
-                                    <div>Language</div>
-                                    <span>{this.state.language}</span>
-                                </ListGroup.Item>
-                                <ListGroup.Item className="d-flex justify-content-between">
-                                    <div>Status</div>
-                                    <span><Badge variant={this.state.status? 'success' : 'danger'}>{this.state.status? 'passed' : 'fail'}</Badge></span>
-                                </ListGroup.Item>
-                                <ListGroup.Item className="d-flex justify-content-between">
-                                    <div>Time</div>
-                                    <span>{this.state.total_time} ms</span>
-                                </ListGroup.Item>
-                                <ListGroup.Item className="d-flex justify-content-between">
-                                    <div>Rank</div>
-                                    <span>{this.state.ranking}</span>
-                                </ListGroup.Item>
-                                <ListGroup.Item className="d-flex justify-content-between">
-                                    <div>PP</div>
-                                    <span>{this.state.pp}</span>
-                                </ListGroup.Item>
-                            </ListGroup>
-                        </Card>
-                    </Col>
-                    <Col md='8'>
-                        <Card bg="light" className="card">
-                            <Table hover>
-                            <thead>
-                                <tr>
-                                    <th>Test no.</th>
-                
-                                    <th>Status</th>
-                
-                                    <th>Elapsed time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {this.state.testcases.map((testcase) => {
-                                    return (<tr key={testcase.test_no}>
-                                                <td>{testcase.test_no}</td>
-                                                <td>
-                                                    <Badge variant={this.badgeMapping[testcase.verdict]}>{testcase.verdict}</Badge>
-                                                </td>
-                                                <td>{testcase.duration}</td>
-                                            </tr>)
-                                })}
-                            </tbody>
-                            </Table>
-                        </Card>
-                    </Col>
-                </Row>
+                <Card bg="light" className="mb-3">
+                    <ListGroup>
+                        <ListGroup.Item action href='#' className="d-flex justify-content-between">
+                            <div>Problem</div>
+                            <span>{this.state.problem}</span>
+                        </ListGroup.Item>
+                        <ListGroup.Item className="d-flex justify-content-between">
+                            <div>Language</div>
+                            <span>{this.state.language}</span>
+                        </ListGroup.Item>
+                        <ListGroup.Item className="d-flex justify-content-between">
+                            <div>Status</div>
+                            <span><Badge variant={this.state.status? 'success' : 'danger'}>{this.state.status? 'passed' : 'fail'}</Badge></span>
+                        </ListGroup.Item>
+                        <ListGroup.Item className="d-flex justify-content-between">
+                            <div>Time</div>
+                            <span>{this.state.total_time} ms</span>
+                        </ListGroup.Item>
+                        <ListGroup.Item className="d-flex justify-content-between">
+                            <div>Rank</div>
+                            <span>{this.state.ranking}</span>
+                        </ListGroup.Item>
+                        <ListGroup.Item className="d-flex justify-content-between">
+                            <div>PP</div>
+                            <span>{this.state.pp}</span>
+                        </ListGroup.Item>
+                    </ListGroup>
+                </Card>
+                <Card bg="light" className="mb-3">
+                    <Table hover>
+                    <thead>
+                        <tr>
+                            <th>Test no.</th>
+        
+                            <th>Status</th>
+        
+                            <th>Elapsed time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.testcases.map((testcase) => {
+                            return (<tr key={testcase.test_no}>
+                                        <td>{testcase.test_no}</td>
+                                        <td>
+                                            <Badge variant={this.badgeMapping[testcase.verdict]}>{testcase.verdict}</Badge>
+                                        </td>
+                                        <td>{testcase.duration}</td>
+                                    </tr>)
+                        })}
+                    </tbody>
+                    </Table>
+                </Card>
+
+                <Card bg="light" className="mb-3">
+                    <Card.Header>stderr</Card.Header>
+                    <Card.Body>
+                        <div>{this.state.log}</div>
+                    </Card.Body>
+                    
+                </Card>
             </Container>
         </>);
     }

@@ -76,7 +76,7 @@ function Profile() {
         <Container>
             <Row className="mt-5">
                 <Col md='4'>
-                    <Card bg="light" className="card">
+                    <Card bg="light" className="mb-3">
                         <Card.Header>Profile</Card.Header>
                         <Card.Body>
                             <div className="profile-card mt-3">
@@ -88,7 +88,7 @@ function Profile() {
                         </Card.Body>
                     </Card>
 
-                    <Card bg="light" className="card">
+                    <Card bg="light" className="mb-3">
                         <Card.Header>Statistic</Card.Header>
                         <ListGroup>
                             {
@@ -103,14 +103,14 @@ function Profile() {
                     </Card>
                 </Col>
                 <Col md='8'>
-                    <Card bg="light" className="card">
+                    <Card bg="light" className="mb-3">
                         <Card.Header>Ranking history</Card.Header>
                         <ReactApexChart options={options} series={series} type="line" height={200} />
                     </Card>
 
 
                     {/* Solved problem list */}
-                    <Card bg="light" className="card"> 
+                    <Card bg="light" className="mb-3">
                         <Card.Header>Top problem points problems</Card.Header>
                         <ListGroup>
                             {
