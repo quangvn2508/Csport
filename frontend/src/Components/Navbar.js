@@ -28,7 +28,7 @@ function Navigation(props) {
                 </Nav>
                 <Nav>
                     {   props.jwt !== undefined?
-                        <Nav.Link href="#Profile" onClick={() => props.removeJwt()}>Logout</Nav.Link> : 
+                        <Nav.Link href="#" onClick={() => props.removeJwt()}>Logout</Nav.Link> : 
                         <Nav.Link onClick={() => props.showLoginPanel(true)}>Join us</Nav.Link>
                     }
                 </Nav>

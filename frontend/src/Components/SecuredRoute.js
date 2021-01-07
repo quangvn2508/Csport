@@ -14,7 +14,7 @@ const mapDipatchToProps = {
 
 function SecuredRoute({ component: Component, jwt, showLoginPanel, ...rest }) {
     return (<Route {...rest} render={(props) => {
-        if (jwt !== null) {
+        if (jwt !== undefined) {
             return <Component {...props} />;
         } else {
             showLoginPanel(true);

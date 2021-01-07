@@ -28,7 +28,12 @@ def oauth_authorize(provider):
     if not ctl.registered_social_id(social_id):
         ctl.create_new_account(social_id)
 
-    jwt = encodeJWT(social_id)
+    user_id = ctl.get_user_id(social_id)
+
+    if user_id is None:
+        return jsonify({'error': 'unexpected error'}), 500
+
+    jwt = encodeJWT(user_id)
     
     return jsonify({'jwt': jwt}), 200
 
@@ -38,15 +43,14 @@ def user_profile():
     jwt = request.headers['Authorization']
 
     # Decode jwt to get social_id
-    social_id = None
+    user_id = None
     try:
-        social_id = decodeJWT(jwt)
+        user_id = decodeJWT(jwt)
     except Exception as e:
         return jsonify({"error": "Invalid jwt"}), 400
 
-    # Get user account from database with social_id
-    user = ctl.get_user_account(social_id)
-
+    # Get user account from database with user_id
+    user = ctl.get_user_account(user_id)
 
     if user == None:
         return jsonify({'error': "User not found"}), 404
@@ -69,12 +73,20 @@ def upload_file():
 # Create problem
 @app.route('/api/problem', methods=['POST'])
 def create_problem():
+    jwt = request.headers['Authorization']
     title = request.json['title']
     statement = request.json['statement']
     testcase_zip_url = request.json['testcase']
 
+    # Decode jwt to get user_id
+    user_id = None
+    try:
+        user_id = decodeJWT(jwt)
+    except Exception as e:
+        return jsonify({"error": "Invalid jwt"}), 400
+
     # Create new problem and get id
-    problem_id = ctl.create_new_problem(title, statement)
+    problem_id = ctl.create_new_problem(user_id, title, statement)
 
     ctl.extract_testcase(testcase_zip_url, problem_id)
 
@@ -106,10 +118,10 @@ def submit_solution(problem_id):
     jwt = request.headers['Authorization']
     language = request.headers['language']
     
-    # Decode jwt to get social_id
-    social_id = None
+    # Decode jwt to get user_id
+    user_id = None
     try:
-        social_id = decodeJWT(jwt)
+        user_id = decodeJWT(jwt)
     except Exception as e:
         return jsonify({"error": "Invalid jwt"}), 400
 
@@ -121,7 +133,7 @@ def submit_solution(problem_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
-    submission_id = ctl.append_submission(social_id, language, code_url, problem_id)
+    submission_id = ctl.add_submission(user_id, language, code_url, problem_id)
 
     # Add job to queue
     JudgeQueue.getInstance().add_submission(submission_id)
@@ -133,10 +145,10 @@ def submit_solution(problem_id):
 def get_submission(submission_id):
     jwt = request.headers['Authorization']
 
-    # Decode jwt to get social_id
-    social_id = None
+    # Decode jwt to get user_id
+    user_id = None
     try:
-        social_id = decodeJWT(jwt)
+        user_id = decodeJWT(jwt)
     except Exception as e:
         return jsonify({"error": "Invalid jwt"}), 400
     
@@ -147,7 +159,7 @@ def get_submission(submission_id):
         return jsonify({'error': 'submission not found'}), 404
     
     # Check if submission belong to requested user
-    if submission['user_id'] != social_id:
+    if submission['user_id'] != user_id:
         return jsonify({'error': 'You are not allow to view others\' submission'}), 403
     
     return jsonify({'submission': submission}), 200
@@ -156,11 +168,6 @@ def get_submission(submission_id):
 @app.route('/api/uploads/<filename>', methods=['GET'])
 def static_dir(filename):
     return send_from_directory('uploads', filename)
-
-@app.route('/api/testdb')
-def testdb():
-    return jsonify({'db': ctl.printdb()}), 200
-
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000)
