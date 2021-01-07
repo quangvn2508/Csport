@@ -6,6 +6,13 @@ import Tooltip from './Tooltip';
 import UploadPanel from './UploadPanel';
 import axios from 'axios';
 import { DownloadFromUrl } from './Util';
+import { connect } from 'react-redux';
+
+function mapStateToProps(state) {
+    return {
+        jwt: state.jwt
+    }
+}
 
 class CreateProblem extends React.Component {
     state = {
@@ -58,8 +65,12 @@ class CreateProblem extends React.Component {
             statement: this.state.statement,
             testcase: this.state.testcaseUrl
         };
-
-        axios.post('/api/problem', data)
+        
+        axios.post('/api/problem', data, {
+            headers: {
+                'Authorization': this.props.jwt
+            }
+        })
             .then(res => {
                 console.log(res);
             })
@@ -147,4 +158,4 @@ class CreateProblem extends React.Component {
     }
 }
 
-export default CreateProblem;
+export default connect(mapStateToProps, null)(CreateProblem);

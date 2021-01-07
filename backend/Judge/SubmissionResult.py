@@ -12,13 +12,7 @@ class TestcaseResult(object):
         self.test_no = test_no
         self.duration = duration
         self.verdict = verdict
-    
-    def to_json(self):
-        return {
-            'test_no': self.test_no,
-            'duration': self.duration,
-            'verdict': self.verdict.value
-        }
+
 
 class SubmissionResult(object):
     def __init__(self):
@@ -33,10 +27,3 @@ class SubmissionResult(object):
     
     def add_log(self, log: str):
         self.log = log
-
-    def to_json(self):
-        return {
-            'status': self.status,
-            'log': self.log,
-            'testcases': [v.to_json() for v in self.testcase_verdict]
-        }

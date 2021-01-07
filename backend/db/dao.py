@@ -1,166 +1,131 @@
 from Judge.SubmissionResult import SubmissionResult
+import sqlite3
+from sqlite3 import Error
+from db.queries import *
+from db.entities import UserEntity, ProblemEntity, SubmissionEntity, TestcaseEntity
+import abc
+from typing import List
 
-database = {
-    'user': [
-        {
-            'id': 1,
-            'username': 'quangvn',
-            'social_id': 'facebook12415223'
-        },
-        {
-            'id': 2,
-            'username': 'teopro',
-            'social_id': 'facebook12415125'
-        },
-    ],
-    'problem': [
-        {
-            'id': 1,
-            'title': 'problem 1',
-            'statement': 'markdown statement',
-            'difficulty': 5,
-            'problemPoints': 5,
-            'ranked': True
-        }
-    ],
-    'submission': [
-        {
-            'id': 1,
-            'user_id': '410945223266976',
-            'problem_id': 1,
-            'language': 'cpp',
-            'code_path': '/api/uploads/<name>',
-            'verdict': {
-                'status': True,
-                'log': 'any error?',
-                'testcases': [
-                    {'test_no': 0, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 1, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 2, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 3, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 4, 'duration': 0.5, 'verdict': 'AC'}
-                ]
-            }
-        },
-        {
-            'id': 2,
-            'user_id': '410945223266976',
-            'problem_id': 1,
-            'language': 'py',
-            'code_path': '/api/uploads/<name>',
-            'verdict': {
-                'status': True,
-                'log': 'any error?',
-                'testcases': [
-                    {'test_no': 0, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 1, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 2, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 3, 'duration': 0.5, 'verdict': 'AC'},
-                    {'test_no': 4, 'duration': 0.5, 'verdict': 'AC'}
-                ]
-            }
-        }
-    ]
-}
-
-class UserTable(object):
+class SqliteConnector(object):
+    DB_FILE = 'database.db'
     instance = None
-    id_count = 3
+    def __init__(self):
+        self.db_query(USER_CREATE_TABLE)
+        self.db_query(PROBLEM_CREATE_TABLE)
+        self.db_query(SUBMISSION_CREATE_TABLE)
+        self.db_query(TESTCASE_VERDICT_CREATE_TABLE)
 
-    # Get user from social id
-    def get(self, _id):
-        for user in database['user']:
-            if user['social_id'] == _id:
-                return user
-        
-        return None
+    def db_query(self, query, t = ()) -> sqlite3.Cursor:
+        result = None
+        with sqlite3.connect(SqliteConnector.DB_FILE) as conn:
+            c = conn.cursor()
+            result = c.execute(query, t)
+            conn.commit()
 
-    def add(self, _id):
-        database['user'].append({
-            'id': UserTable.id_count, 
-            'username': _id, 
-            'social_id': _id,
-        })
-        UserTable.id_count += 1
-        return UserTable.id_count - 1
-
-    def update(self):
-        pass
+        return result
 
     @classmethod
     def getInstance(cls):
-        if not UserTable.instance:
-            UserTable.instance = UserTable()
-        return UserTable.instance
+        if not cls.instance:
+            cls.instance = cls()
+        return cls.instance
 
-class ProblemTable(object):
+class Dao(metaclass=abc.ABCMeta):
     instance = None
-    id_count = 2
 
-    def getAll(self):
-        return database['problem']
+    @classmethod
+    def getInstance(cls):
+        if not cls.instance:
+            cls.instance = cls()
+        return cls.instance
+
+
+class UserDao(Dao):
+    def get(self, _id: int) -> UserEntity:
+        query = 'SELECT * FROM user WHERE UserId=?'
+        user_tuple = SqliteConnector.getInstance().db_query(query, (_id, )).fetchone()
+        if user_tuple is None:
+            return None
+
+        return UserEntity(*user_tuple)
+
+    def get_with_social_id(self, social_id: str) -> UserEntity:
+        query = 'SELECT * FROM user WHERE social_id=?'
+        user_tuple = SqliteConnector.getInstance().db_query(query, (social_id, )).fetchone()
+        if user_tuple is None:
+            return None
+
+        return UserEntity(*user_tuple)
+
+    def add(self, social_id: str) -> int:
+        query = 'INSERT INTO user (username, social_id) VALUES (?,?)'
+        return SqliteConnector.getInstance().db_query(query, (social_id, social_id)).lastrowid
+
+    @classmethod
+    def getInstance(cls):
+        return super().getInstance()
+
+class ProblemDao(Dao):
+    def get(self, _id: int) -> ProblemEntity:
+        query = 'SELECT * FROM problem WHERE ProblemId=?'
+        problem_tuple = SqliteConnector.getInstance().db_query(query, (_id, )).fetchone()
+        if problem_tuple is None:
+            return None
+
+        return ProblemEntity(*problem_tuple)
+
+    def getAll(self) -> List[ProblemEntity]:
+        query = 'SELECT ProblemId, title, difficulty, problem_point, ranked FROM problem'
+        problems = []
+        for row in SqliteConnector.getInstance().db_query(query).fetchall():
+            pi, tt, df, pp, rk = row
+            problems.append(ProblemEntity(pi, None, tt, None, df, pp, rk))
+
+        return problems
     
-    def get(self, _id):
-
-        for problem in database['problem']:
-            if problem['id'] == _id:
-                return problem
-        
-        return None
-
-    def add(self, title, statement):
-        database['problem'].append({
-            'id': ProblemTable.id_count,
-            'title': title,
-            'statement': statement,
-            'difficulty': 5,
-            'problemPoints': 5,
-            'ranked': True
-        })
-        ProblemTable.id_count += 1
-        return ProblemTable.id_count - 1
-
-    def update(self):
-        pass
+    def add(self, user_id: int, title: str, statement: str) -> int:
+        query = 'INSERT INTO problem (UserId, title, statement) VALUES (?,?,?)'
+        return SqliteConnector.getInstance().db_query(query, (user_id, title, statement)).lastrowid
 
     @classmethod
     def getInstance(cls):
-        if not ProblemTable.instance:
-            ProblemTable.instance = ProblemTable()
-        return ProblemTable.instance
+        return super().getInstance()
 
-class SubmissionTable(object):
-    instance = None
-    id_count = 3
-
-    def get(self, _id):
-        for submission in database['submission']:
-            if submission['id'] == _id:
-                return submission
+class TestcaseDao(Dao):
+    def getAll(self, submission_id: int) -> List[TestcaseEntity]:
+        query = 'SELECT * FROM testcase_verdict WHERE SubmissionId=?'
+        testcases = []
+        for row in SqliteConnector.getInstance().db_query(query, (submission_id, )):
+            testcases.append(TestcaseEntity(*row))
         
-        return None
-
-    def add(self, user_id, language, code_path, problem_id):
-        database['submission'].append({
-            'id': SubmissionTable.id_count,
-            'user_id': user_id,
-            'problem_id': problem_id,
-            'language': language,
-            'code_path': code_path,
-            'verdict': None
-        })
-        SubmissionTable.id_count += 1
-        return SubmissionTable.id_count - 1
-
-    def update_verdict(self, submission_id: int, verdict: SubmissionResult):
-        for submission in database['submission']:
-            if submission['id'] == submission_id:
-                submission['verdict'] = verdict
-                return True
-        return False
+        return testcases
+    
+    def add(self, submission_id: int, test_no: int, duration: float, verdict: str):
+        query = 'INSERT INTO testcase_verdict (SubmissionId, test_no, duration, verdict) VALUES (?,?,?,?)'
+        return SqliteConnector.getInstance().db_query(query, (submission_id, test_no, duration, verdict)).lastrowid
 
     @classmethod
     def getInstance(cls):
-        if not SubmissionTable.instance:
-            SubmissionTable.instance = SubmissionTable()
-        return SubmissionTable.instance
+        return super().getInstance()
+
+
+class SubmissionDao(Dao):
+    def get(self, _id: int) -> SubmissionEntity:
+        query = 'SELECT * FROM submission WHERE SubmissionId=?'
+        submission_tuple = SqliteConnector.getInstance().db_query(query, (_id, )).fetchone()
+        if submission_tuple is None:
+            return None
+        
+        return SubmissionEntity(*submission_tuple)
+
+    def add(self, user_id, language, code_path, problem_id) -> int:
+        query = 'INSERT INTO submission (UserId, ProblemId, language, code_path) VALUES (?,?,?,?)'
+        return SqliteConnector.getInstance().db_query(query, (user_id, problem_id, language, code_path)).lastrowid
+
+    def update(self, _id: int, status: bool, log: str):
+        query = 'UPDATE submission SET judged=1, status=?, log=? WHERE SubmissionId=?'
+        SqliteConnector.getInstance().db_query(query, (status, log, _id))
+
+    @classmethod
+    def getInstance(cls):
+        return super().getInstance()
