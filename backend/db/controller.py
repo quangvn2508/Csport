@@ -86,9 +86,10 @@ def extract_testcase(zip_url: str, problem_id: int):
 def get_submission(submission_id: int):
     submission = SubmissionDao.getInstance().get(submission_id)
     submission_json = submission.to_json()
+    submission_json['testcases'] = []
     if submission.judged:
         submission_json['testcases'] = [obj.to_json() for obj in TestcaseDao.getInstance().getAll(submission_id)]
-    print(submission_json)
+
     return submission_json
 
 def finish_judge_submission(submission_id: int, result: SubmissionResult):

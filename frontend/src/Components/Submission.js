@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Table, Badge, Row, Col, Card, ListGroup } from 'react-bootstrap';
+import { Container, Table, Badge, Card, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 import { connect } from 'react-redux';
 
