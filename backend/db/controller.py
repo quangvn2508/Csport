@@ -87,9 +87,12 @@ def get_submission(submission_id: int):
     submission = SubmissionDao.getInstance().get(submission_id)
     submission_json = submission.to_json()
     if submission.judged:
-        submission_json['testcases'] = [obj.to_json() for obj in TestcaseDao.getAll(submission_id)]
-
+        submission_json['testcases'] = [obj.to_json() for obj in TestcaseDao.getInstance().getAll(submission_id)]
+    print(submission_json)
     return submission_json
 
-# def finish_judge_submission(submission_id: int, result: SubmissionResult):
-#     SubmissionDao.getInstance().update_verdict(submission_id, result.to_json())
+def finish_judge_submission(submission_id: int, result: SubmissionResult):
+    for testcase in result.testcase_verdict:
+        TestcaseDao.getInstance().add(submission_id, testcase.test_no, testcase.duration, testcase.verdict.value)
+    
+    SubmissionDao.getInstance().update(submission_id, result.status, result.log)

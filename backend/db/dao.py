@@ -10,34 +10,19 @@ class SqliteConnector(object):
     DB_FILE = 'database.db'
     instance = None
     def __init__(self):
-        self.conn = self.create_connection(SqliteConnector.DB_FILE)
         self.db_query(USER_CREATE_TABLE)
         self.db_query(PROBLEM_CREATE_TABLE)
         self.db_query(SUBMISSION_CREATE_TABLE)
         self.db_query(TESTCASE_VERDICT_CREATE_TABLE)
 
-    def create_connection(self, db):
-        conn = None
-        try:
-            conn = sqlite3.connect(db)
-        except Error as e:
-            print(e)
-        
-        return conn
-
     def db_query(self, query, t = ()) -> sqlite3.Cursor:
         result = None
-        try:
-            c = self.conn.cursor()
+        with sqlite3.connect(SqliteConnector.DB_FILE) as conn:
+            c = conn.cursor()
             result = c.execute(query, t)
-            self.conn.commit()
-        except Error as e:
-            print(e)
-        
+            conn.commit()
+
         return result
-    
-    def __del__(self):
-        self.conn.close()
 
     @classmethod
     def getInstance(cls):

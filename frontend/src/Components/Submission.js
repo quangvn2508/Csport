@@ -31,16 +31,6 @@ class Submission extends React.Component {
     };
 
     componentDidMount() {
-        // const status = ['AC', 'RE', 'CE', 'WA', 'TLE'];
-        // let data = [];
-        // for (let i = 0; i < 10; i++) {
-        //     data.push({test_no: i, 
-        //         verdict: status[Math.floor(Math.random() * 5)],
-        //         duration: Math.ceil(Math.random() * 1000)
-        //     })
-        // }
-
-        // this.setState({testcases: data});
         
         axios.get('/api/submission/' + this.submissionId, {
             headers: {
@@ -53,8 +43,8 @@ class Submission extends React.Component {
                 this.setState({
                     problem: submission.problem_id,
                     language: submission.language,
-                    status: submission.verdict.status,
-                    testcases: submission.verdict.testcases
+                    status: submission.status,
+                    testcases: submission.testcases
                 });
             }
         })
