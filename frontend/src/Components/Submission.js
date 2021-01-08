@@ -14,9 +14,10 @@ class Submission extends React.Component {
     state = {
         testcases: [],
         problem: '#',
-        language: 'cpp',
+        language: '',
         status: true,
-        total_time: 1.05,
+        judged: false,
+        total_time: 0,
         ranking: 'N/A',
         pp: 'N/A',
         log: ''
@@ -43,7 +44,8 @@ class Submission extends React.Component {
                 this.setState({
                     problem: submission.problem_id,
                     language: submission.language,
-                    status: submission.status,
+                    status: !!submission.status,
+                    judged: !!submission.judged,
                     testcases: submission.testcases,
                     total_time: submission.testcases.reduce((sum, cur) => sum + cur.duration, 0)
                 });
@@ -70,7 +72,14 @@ class Submission extends React.Component {
                         </ListGroup.Item>
                         <ListGroup.Item className="d-flex justify-content-between">
                             <div>Status</div>
-                            <span><Badge variant={this.state.status? 'success' : 'danger'}>{this.state.status? 'passed' : 'fail'}</Badge></span>
+                            <span>
+                                {
+                                    (!this.state.judged && 
+                                        <Badge variant="warning">Pending</Badge>
+                                    ) ||
+                                    <Badge variant={this.state.status? 'success' : 'danger'}>{this.state.status? 'Pass' : 'Fail'}</Badge>
+                                }
+                            </span>
                         </ListGroup.Item>
                         <ListGroup.Item className="d-flex justify-content-between">
                             <div>Time</div>
@@ -86,30 +95,34 @@ class Submission extends React.Component {
                         </ListGroup.Item>
                     </ListGroup>
                 </Card>
-                <Card bg="light" className="mb-3">
-                    <Table hover>
-                    <thead>
-                        <tr>
-                            <th>Test no.</th>
-        
-                            <th>Status</th>
-        
-                            <th>Elapsed time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.state.testcases.map((testcase) => {
-                            return (<tr key={testcase.test_no}>
-                                        <td>{testcase.test_no}</td>
-                                        <td>
-                                            <Badge variant={this.badgeMapping[testcase.verdict]}>{testcase.verdict}</Badge>
-                                        </td>
-                                        <td>{testcase.duration}</td>
-                                    </tr>)
-                        })}
-                    </tbody>
-                    </Table>
-                </Card>
+                {
+                    (this.state.judged) &&
+
+                    (<Card bg="light" className="mb-3">
+                        <Table hover>
+                        <thead>
+                            <tr>
+                                <th>Test no.</th>
+            
+                                <th>Status</th>
+            
+                                <th>Elapsed time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.state.testcases.map((testcase) => {
+                                return (<tr key={testcase.test_no}>
+                                            <td>{testcase.test_no}</td>
+                                            <td>
+                                                <Badge variant={this.badgeMapping[testcase.verdict]}>{testcase.verdict}</Badge>
+                                            </td>
+                                            <td>{testcase.duration}</td>
+                                        </tr>)
+                            })}
+                        </tbody>
+                        </Table>
+                    </Card>)
+                }
                         
                 {
                     this.state.log.length > 0 &&
