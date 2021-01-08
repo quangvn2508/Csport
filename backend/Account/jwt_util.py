@@ -5,7 +5,7 @@ from config import JWT_KEY, JWT_ALGORITHM
 def encodeJWT(user_id):
     payload = {
         'user_id' : user_id,
-        'exp': datetime.utcnow() + timedelta(seconds=3600)
+        'exp': datetime.utcnow() + timedelta(seconds=2592000)
     }
     token = str(jwt.encode(payload, JWT_KEY, JWT_ALGORITHM))
 
