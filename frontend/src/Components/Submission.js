@@ -32,7 +32,6 @@ class Submission extends React.Component {
     };
 
     componentDidMount() {
-        
         axios.get('/api/submission/' + this.submissionId, {
             headers: {
                 'Authorization': this.props.jwt
@@ -45,13 +44,14 @@ class Submission extends React.Component {
                     problem: submission.problem_id,
                     language: submission.language,
                     status: submission.status,
-                    testcases: submission.testcases
+                    testcases: submission.testcases,
+                    total_time: submission.testcases.reduce((sum, cur) => sum + cur.duration, 0)
                 });
             }
         })
         .catch(err => {
             console.log(err.response);
-        })
+        });
     }
     
     render() {
@@ -60,7 +60,7 @@ class Submission extends React.Component {
                 <h1>Submission {this.submissionId}</h1>
                 <Card bg="light" className="mb-3">
                     <ListGroup>
-                        <ListGroup.Item action href='#' className="d-flex justify-content-between">
+                        <ListGroup.Item action href={'/problem/' + this.state.problem} className="d-flex justify-content-between">
                             <div>Problem</div>
                             <span>{this.state.problem}</span>
                         </ListGroup.Item>
@@ -110,14 +110,17 @@ class Submission extends React.Component {
                     </tbody>
                     </Table>
                 </Card>
+                        
+                {
+                    this.state.log.length > 0 &&
 
-                <Card bg="light" className="mb-3">
-                    <Card.Header>stderr</Card.Header>
-                    <Card.Body>
-                        <div>{this.state.log}</div>
-                    </Card.Body>
-                    
-                </Card>
+                    <Card bg="light" className="mb-3">
+                        <Card.Header>stderr</Card.Header>
+                        <Card.Body>
+                            <div>{this.state.log}</div>
+                        </Card.Body>
+                    </Card>
+                }
             </Container>
         </>);
     }
