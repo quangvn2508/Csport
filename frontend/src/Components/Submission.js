@@ -80,6 +80,7 @@ class Submission extends React.Component {
                                     <Badge variant={this.state.status? 'success' : 'danger'}>{this.state.status? 'Pass' : 'Fail'}</Badge>
                                 }
                             </span>
+
                         </ListGroup.Item>
                         <ListGroup.Item className="d-flex justify-content-between">
                             <div>Time</div>
