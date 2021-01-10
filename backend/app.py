@@ -52,7 +52,6 @@ def user_profile():
     user_id, code = decodeJWT(jwt)
     if code == 401:
         return jsonify({'error': 'JWT expired'}), 401
-
     # Get user account from database with user_id
     user = ctl.get_user_account(user_id)
 
@@ -91,6 +90,13 @@ def create_problem():
     user_id, code = decodeJWT(jwt)
     if code == 401:
         return jsonify({'error': 'JWT expired'}), 401
+
+    # Decode jwt to get user_id
+    user_id = None
+    try:
+        user_id = decodeJWT(jwt)
+    except Exception as e:
+        return jsonify({"error": "Invalid jwt"}), 400
 
     # Create new problem and get id
     problem_id = ctl.create_new_problem(user_id, title, statement)
