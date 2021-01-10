@@ -5,7 +5,7 @@ import { FACEBOOK_APP_ID } from './../config';
 import { Modal } from 'react-bootstrap';
 import './../Style/Login.css';
 import { connect } from 'react-redux';
-import { setJwt, showLoginPanel } from '../redux/actions';
+import { setJwt, showLoginPanel, addMessage, addError } from '../redux/actions';
 
 function mapStateToProps(state) {
     return {
@@ -16,7 +16,9 @@ function mapStateToProps(state) {
 
 const mapDipatchToProps = {
     setJwt,
-    showLoginPanel
+    showLoginPanel,
+    addMessage,
+    addError
 }
 
 class Login extends React.Component {
@@ -28,10 +30,13 @@ class Login extends React.Component {
     })
       .then(res => {
         this.props.setJwt(res.data.jwt);
-        // Notification here
+        
+        this.props.addMessage('Login successfully');
         this.handleHide();
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        this.props.addError(err.response.body, err.response.status);
+      });
   };
 
   render() {

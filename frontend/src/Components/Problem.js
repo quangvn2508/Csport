@@ -4,11 +4,18 @@ import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import Selection from './Selection';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import { addError, addMessage } from '../redux/actions';
+import { Redirect } from 'react-router-dom';
 
 function mapStateToProps(state) {
     return {
         jwt: state.jwt
     }
+}
+
+const mapDipatchToProps = {
+    addError,
+    addMessage
 }
 
 class Problem extends React.Component {
@@ -17,24 +24,23 @@ class Problem extends React.Component {
         statement: "",
         problemId: this.props.match.params.problemId,
         language: "py",
-        code: null
+        code: null,
+        redirect: null
     }
     
 
     componentDidMount() {
         axios.get('/api/problem/' + this.state.problemId)
         .then(res => {
-            console.log(res);
-            if (res.status === 200) {
-                let problem = res.data.problem;
-                this.setState({
-                    statement: marked(problem.statement),
-                    title: problem.title
-                })
-            }
+            const problem = res.data.problem;
+            this.setState({
+                statement: marked(problem.statement),
+                title: problem.title
+            });
         })
         .catch(err => {
-            console.log(err);
+            this.props.addError('Unable to get problem');
+            this.setState({redirect: '/'});
         });
     }
 
@@ -42,8 +48,6 @@ class Problem extends React.Component {
     updateFile = (event) => {this.setState({code: event.target.files[0]});}
     submitCode = (event) => {
         event.preventDefault();
-        console.log(this.state.language);
-        console.log(this.state.code);
         let data = new FormData();
 
         data.append('file', this.state.code);
@@ -53,22 +57,27 @@ class Problem extends React.Component {
             'language': this.state.language
         };
 
-        console.log(header);
-
         axios.post('/api/submit/' + this.state.problemId, data, {
             headers: header
         })
         .then(res => {
-            console.log(res);
+            this.props.addMessage('Submission recorded');
+            this.setState({redirect: '/submission/' + res.data.submission_id});
         })
         .catch(err => {
-            console.log(err);
+            if (err.response.status === 401) {
+                // invalid JWT
+                this.props.addError(err.response.body.error, 'Login session expired');
+                this.props.removeJwt();
+            } else this.props.addError(err.response.body.error);
         });
 
     }
 
     render() {
         return (
+            this.state.redirect !== null?
+            <Redirect to={this.state.redirect}/> :
             <Container>
                 <h1>{this.state.title}</h1>
                 <article dangerouslySetInnerHTML={{__html: this.state.statement}}></article>
@@ -91,4 +100,4 @@ class Problem extends React.Component {
         );
     }
 }
-export default connect(mapStateToProps, null)(Problem);
+export default connect(mapStateToProps, mapDipatchToProps)(Problem);

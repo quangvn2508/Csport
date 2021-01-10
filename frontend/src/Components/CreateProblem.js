@@ -7,11 +7,19 @@ import UploadPanel from './UploadPanel';
 import axios from 'axios';
 import { DownloadFromUrl } from './Util';
 import { connect } from 'react-redux';
+import { addMessage, addError, removeJwt } from '../redux/actions';
+import { Redirect } from 'react-router-dom';
 
 function mapStateToProps(state) {
     return {
         jwt: state.jwt
     }
+}
+
+const mapDipatchToProps = {
+    addMessage,
+    addError,
+    removeJwt
 }
 
 class CreateProblem extends React.Component {
@@ -20,7 +28,8 @@ class CreateProblem extends React.Component {
         statement: '',
         showImageUpload: false,
         showZipUpload: false,
-        testcaseUrl: null
+        testcaseUrl: null,
+        redirect: null
     }
 
     constructor(props) {
@@ -71,13 +80,19 @@ class CreateProblem extends React.Component {
                 'Authorization': this.props.jwt
             }
         })
-            .then(res => {
-                console.log(res);
-            })
-            .catch(err => {
-                console.log(err);
-            })
+        .then(res => {
+            this.props.addMessage('Create problem successfully');
+            const problem_id = res.data.problem_id;
 
+            this.setState({redirect: '/problem/' + problem_id});
+        })
+        .catch(err => {
+            if (err.response.status === 401) {
+                // invalid JWT
+                this.props.addError(err.response.body.error, 'Login session expired');
+                this.props.removeJwt();
+            } else this.props.addError(err.response.body.error);
+        });
     }
 
     downloadTestcase = () => {
@@ -86,6 +101,8 @@ class CreateProblem extends React.Component {
 
     render() {
         return (
+            this.state.redirect !== null?
+            <Redirect to={this.state.redirect}/> : 
             <>
                 <UploadPanel
                     show={this.state.showImageUpload}
@@ -158,4 +175,4 @@ class CreateProblem extends React.Component {
     }
 }
 
-export default connect(mapStateToProps, null)(CreateProblem);
+export default connect(mapStateToProps, mapDipatchToProps)(CreateProblem);

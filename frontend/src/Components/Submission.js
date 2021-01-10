@@ -2,11 +2,16 @@ import React from 'react';
 import { Container, Table, Badge, Card, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import { addError } from '../redux/actions';
 
 function mapStateToProps(state) {
     return {
         jwt: state.jwt
     }
+}
+
+const mapDipatchToProps = {
+    addError
 }
 
 
@@ -39,20 +44,22 @@ class Submission extends React.Component {
             }
         })
         .then(res => {
-            if (res.status === 200) {
-                const submission = res.data.submission;
-                this.setState({
-                    problem: submission.problem_id,
-                    language: submission.language,
-                    status: !!submission.status,
-                    judged: !!submission.judged,
-                    testcases: submission.testcases,
-                    total_time: submission.testcases.reduce((sum, cur) => sum + cur.duration, 0)
-                });
-            }
+            const submission = res.data.submission;
+            this.setState({
+                problem: submission.problem_id,
+                language: submission.language,
+                status: !!submission.status,
+                judged: !!submission.judged,
+                testcases: submission.testcases,
+                total_time: submission.testcases.reduce((sum, cur) => sum + cur.duration, 0)
+            });
         })
         .catch(err => {
-            console.log(err.response);
+            if (err.response.status === 401) {
+                // invalid JWT
+                this.props.addError(err.response.body.error, 'Login session expired');
+                this.props.removeJwt();
+            } else this.props.addError(err.response.body.error);
         });
     }
     
@@ -80,7 +87,6 @@ class Submission extends React.Component {
                                     <Badge variant={this.state.status? 'success' : 'danger'}>{this.state.status? 'Pass' : 'Fail'}</Badge>
                                 }
                             </span>
-
                         </ListGroup.Item>
                         <ListGroup.Item className="d-flex justify-content-between">
                             <div>Time</div>
@@ -141,5 +147,5 @@ class Submission extends React.Component {
     
 }
 
-export default connect(mapStateToProps, null)(Submission);
+export default connect(mapStateToProps, mapDipatchToProps)(Submission);
 

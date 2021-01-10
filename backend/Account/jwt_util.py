@@ -12,6 +12,9 @@ def encodeJWT(user_id):
     return token
 
 def decodeJWT(_jwt):
-    payload = jwt.decode(_jwt, JWT_KEY, algorithms = [JWT_ALGORITHM])
-
-    return payload['user_id']
+    try:
+        payload = jwt.decode(_jwt, JWT_KEY, algorithms = [JWT_ALGORITHM])        
+    except jwt.ExpiredSignatureError:
+        return None, 401
+    
+    return payload['user_id'], None
