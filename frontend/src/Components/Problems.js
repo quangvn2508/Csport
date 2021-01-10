@@ -4,6 +4,13 @@ import { Slider } from "@material-ui/core";
 import Selection from './Selection';
 import axios from 'axios';
 import { PageController } from './Util';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { addError } from '../redux/actions';
+
+const mapDipatchToProps = {
+    addError
+}
 
 class Problems extends React.Component {
     state = {
@@ -16,7 +23,8 @@ class Problems extends React.Component {
         filterStatus: null, // Filter
         numberOfPage: 1, // Pagination
         currentPage: 1, // Pagination
-        problemPerPage: 10 // Pagination
+        problemPerPage: 10, // Pagination
+        redirect: null
     }
     
     // Functions for filter
@@ -83,19 +91,21 @@ class Problems extends React.Component {
 
         axios.get('/api/problems')
         .then(res => {
-            if (res.status === 200) {
-                data = res.data.problems;
-                this.setState({problemSet: data, filteredProblemSet: data, numberOfPage: Math.ceil(data.length / this.state.problemPerPage)});
-            }
+            data = res.data.problems;
+            this.setState({problemSet: data, filteredProblemSet: data, numberOfPage: Math.ceil(data.length / this.state.problemPerPage)});
         })
         .catch(err => {
-            console.log(err);
-        })
+            this.props.addError('Unable to get problem list');
+            this.setState({redirect: '/'});
+        });
     }
 
 
     render() {
-        return (<>
+        return (
+        this.state.redirect !== null?
+        <Redirect to={this.state.redirect}/>:
+        <>
             <Container>
                 <h1>Problems</h1>
                 <Row>
@@ -159,5 +169,4 @@ class Problems extends React.Component {
     }
 }
 
-export default Problems;
-
+export default connect(null, mapDipatchToProps)(Problems);

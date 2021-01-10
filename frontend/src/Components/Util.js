@@ -12,6 +12,9 @@ export const DownloadFromUrl = (url) => {
         link.setAttribute('download', 'testcase.zip');
         document.body.appendChild(link);
         link.click();
+    })
+    .catch(err => {
+        console.log(err.response);
     });
 }
 

@@ -1,7 +1,7 @@
 import { Navbar, Nav } from 'react-bootstrap';
 import Login from './Login';
 import { connect } from 'react-redux';
-import { setJwt, removeJwt, showLoginPanel } from '../redux/actions';
+import { setJwt, removeJwt, showLoginPanel, addMessage } from '../redux/actions';
 
 function mapStateToProps(state) {
     return {
@@ -12,7 +12,8 @@ function mapStateToProps(state) {
 const mapDipatchToProps = {
     setJwt,
     removeJwt,
-    showLoginPanel
+    showLoginPanel,
+    addMessage
 }
 
 function Navigation(props) {
@@ -28,7 +29,10 @@ function Navigation(props) {
                 </Nav>
                 <Nav>
                     {   props.jwt !== undefined?
-                        <Nav.Link href="#" onClick={() => props.removeJwt()}>Logout</Nav.Link> : 
+                        <Nav.Link href="#" onClick={() => {
+                            props.removeJwt();
+                            props.addMessage('Logged out');
+                        }}>Logout</Nav.Link> : 
                         <Nav.Link onClick={() => props.showLoginPanel(true)}>Join us</Nav.Link>
                     }
                 </Nav>

@@ -97,13 +97,7 @@ def create_problem():
 
     ctl.extract_testcase(testcase_zip_url, problem_id)
 
-    # Get created problem
-    problem = ctl.get_problem(problem_id)
-
-    if problem == None:
-        return jsonify({'error': 'Unable to create new problem'}), 400
-
-    return jsonify({'problem': problem}), 200
+    return jsonify({'problem_id': problem_id}), 200
 
 # Get problem list
 @app.route('/api/problems', methods=['GET'])

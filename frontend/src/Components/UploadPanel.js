@@ -1,7 +1,13 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { Form, Modal } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { addMessage, addError } from '../redux/actions';
 
+const mapDipatchToProps = {
+    addMessage,
+    addError
+}
 
 function UploadPanel(props) {
   const [file, setFile] = useState(null);
@@ -16,13 +22,11 @@ function UploadPanel(props) {
 
     axios.post('/api/file_upload', data)
     .then(res => {
-      console.log(res.data);
-      if (res.status === 200) {
-        props.onSuccess(res.data.url);
-      }
+      props.addMessage('Upload successfully');
+      props.onSuccess(res.data.url);
     })
     .catch(err => {
-      console.log(err.response.data.error);
+      addError(err.response.data.error, err.response.status);
     });
 
     setFile(null);
@@ -48,4 +52,4 @@ function UploadPanel(props) {
   );
 }
 
-export default UploadPanel;
+export default connect(null, mapDipatchToProps)(UploadPanel);
