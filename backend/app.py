@@ -12,7 +12,10 @@ CORS(app, resources = { r"/api/*": { "origins": "*" } })
 # Login using OAuth2
 @app.route('/api/authorize/<provider>/', methods=['POST'])
 def oauth_authorize(provider):
-    user_token = request.json['token']
+    try:
+        user_token = request.json['token']
+    except Exception:
+        return 400
     
     # Get corresponding provider to check user.
     oauth = OAuthSignIn.get_provider(provider)
@@ -40,14 +43,15 @@ def oauth_authorize(provider):
 # Get user profile with jwt
 @app.route('/api/user/profile', methods=['GET'])
 def user_profile():
-    jwt = request.headers['Authorization']
+    try:
+        jwt = request.headers['Authorization']
+    except Exception:
+        return 400
 
     # Decode jwt to get social_id
-    user_id = None
-    try:
-        user_id = decodeJWT(jwt)
-    except Exception as e:
-        return jsonify({"error": "Invalid jwt"}), 400
+    user_id, code = decodeJWT(jwt)
+    if code == 401:
+        return jsonify({'error': 'JWT expired'}), 401
 
     # Get user account from database with user_id
     user = ctl.get_user_account(user_id)
@@ -60,9 +64,11 @@ def user_profile():
 # upload a file
 @app.route('/api/file_upload', methods=['POST'])
 def upload_file():
-    file = request.files['file']
+    try:
+        file = request.files['file']
+    except Exception:
+        return 400
     
-    static_path = None
     try:
         static_path = ctl.upload_file(file)    
     except Exception as e:
@@ -73,17 +79,18 @@ def upload_file():
 # Create problem
 @app.route('/api/problem', methods=['POST'])
 def create_problem():
-    jwt = request.headers['Authorization']
-    title = request.json['title']
-    statement = request.json['statement']
-    testcase_zip_url = request.json['testcase']
+    try:
+        jwt = request.headers['Authorization']
+        title = request.json['title']
+        statement = request.json['statement']
+        testcase_zip_url = request.json['testcase']
+    except Exception:
+        return 400
 
     # Decode jwt to get user_id
-    user_id = None
-    try:
-        user_id = decodeJWT(jwt)
-    except Exception as e:
-        return jsonify({"error": "Invalid jwt"}), 400
+    user_id, code = decodeJWT(jwt)
+    if code == 401:
+        return jsonify({'error': 'JWT expired'}), 401
 
     # Create new problem and get id
     problem_id = ctl.create_new_problem(user_id, title, statement)
@@ -115,15 +122,16 @@ def get_problem(problem_id):
 # Submit solution to a problem with id
 @app.route('/api/submit/<int:problem_id>', methods=['POST'])
 def submit_solution(problem_id):
-    jwt = request.headers['Authorization']
-    language = request.headers['language']
+    try:
+        jwt = request.headers['Authorization']
+        language = request.headers['language']
+    except Exception:
+        return 400
     
     # Decode jwt to get user_id
-    user_id = None
-    try:
-        user_id = decodeJWT(jwt)
-    except Exception as e:
-        return jsonify({"error": "Invalid jwt"}), 400
+    user_id, code = decodeJWT(jwt)
+    if code == 401:
+        return jsonify({'error': 'JWT expired'}), 401
 
     code = request.files['file']
      
@@ -143,14 +151,15 @@ def submit_solution(problem_id):
 # Get a submission
 @app.route('/api/submission/<int:submission_id>', methods=['GET'])
 def get_submission(submission_id):
-    jwt = request.headers['Authorization']
-
-    # Decode jwt to get user_id
-    user_id = None
     try:
-        user_id = decodeJWT(jwt)
-    except Exception as e:
-        return jsonify({"error": "Invalid jwt"}), 400
+        jwt = request.headers['Authorization']
+    except Exception:
+        return 400
+    
+    # Decode jwt to get user_id
+    user_id, code = decodeJWT(jwt)
+    if code == 401:
+        return jsonify({'error': 'JWT expired'}), 401
     
     submission = ctl.get_submission(submission_id)
 
