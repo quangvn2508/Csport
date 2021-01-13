@@ -5,6 +5,7 @@ from Account.oauth import OAuthSignIn
 from Account.jwt_util import encodeJWT, decodeJWT
 import db.controller as ctl
 from Judge.JudgeQueue import JudgeQueue
+import validation.validation as vld
 
 app = Flask(__name__, static_url_path='/uploads')
 CORS(app, resources = { r"/api/*": { "origins": "*" } })
@@ -84,8 +85,11 @@ def create_problem():
         title = request.json['title']
         statement = request.json['statement']
         testcase_zip_url = request.json['testcase']
-    except Exception:
-        return 400
+
+        assert vld.new_post_validation(title, statement)
+    except Exception as e:
+
+        return jsonify({'error': 'Missing/Invalid input'}), 400
 
     # Decode jwt to get user_id
     user_id, code = decodeJWT(jwt)
@@ -95,7 +99,12 @@ def create_problem():
     # Create new problem and get id
     problem_id = ctl.create_new_problem(user_id, title, statement)
 
-    ctl.extract_testcase(testcase_zip_url, problem_id)
+    try:
+        ctl.extract_testcase(testcase_zip_url, problem_id)
+    except FileNotFoundError:
+        return jsonify({'error': 'Testcase URL not recognised'}), 400
+    except Exception:
+        return jsonify({'error': 'Invalid testcase URL'}), 400
 
     return jsonify({'problem_id': problem_id}), 200
 
