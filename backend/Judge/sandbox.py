@@ -4,8 +4,8 @@ from Judge.SubmissionResult import SubmissionResult, Verdict
 MAX_NUMBER_OF_TESTCASES = 20
 
 limits = {
-    'py': {'cputime': 5, 'memory': 128},
-    'cpp': {'cputime': 2, 'memory': 128}
+    'py': {'cputime': 2, 'memory': 128},
+    'cpp': {'cputime': 1, 'memory': 128}
 }
 
 # Get all non-empty lines from string
@@ -37,13 +37,13 @@ def get_input_expected_output(testcase_dir: str, test_no: int):
 
 # Process output from sandbox and set result for each test case
 def process_output(test_no: int, output, expected: str, result: SubmissionResult):
-    if output['exit_code'] != 0:
+    if output['exit_code'] != 0 and output['exit_code'] != None:
         result.add_testcase_verdict(test_no, False, Verdict.RUNTIME_ERROR, 0)
         result.add_log(output['stderr'].decode())
         return
     
     if output['timeout']:
-        result.add_testcase_verdict(test_no, False, Verdict.TIME_LIMIT_EXCEED, output['duration'])
+        result.add_testcase_verdict(test_no, False, Verdict.TIME_LIMIT_EXCEED, 0)
 
     elif compare_output(expected, output['stdout'].decode()):
         result.add_testcase_verdict(test_no, True, Verdict.ACCEPT, output['duration'])

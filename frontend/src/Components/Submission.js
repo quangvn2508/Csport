@@ -51,7 +51,8 @@ class Submission extends React.Component {
                 status: !!submission.status,
                 judged: !!submission.judged,
                 testcases: submission.testcases,
-                total_time: submission.testcases.reduce((sum, cur) => sum + cur.duration, 0)
+                total_time: submission.testcases.reduce((sum, cur) => sum + cur.duration, 0),
+                log: submission.log
             });
         })
         .catch(err => {
@@ -137,7 +138,11 @@ class Submission extends React.Component {
                     <Card bg="light" className="mb-3">
                         <Card.Header>stderr</Card.Header>
                         <Card.Body>
-                            <div>{this.state.log}</div>
+                            {this.state.log.split('\n').map((i, k) => {
+                                return (
+                                    <pre key={k}>{i}</pre>
+                                )
+                            })}
                         </Card.Body>
                     </Card>
                 }

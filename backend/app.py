@@ -87,8 +87,7 @@ def create_problem():
         testcase_zip_url = request.json['testcase']
 
         assert vld.new_post_validation(title, statement)
-    except Exception as e:
-
+    except Exception:
         return jsonify({'error': 'Missing/Invalid input'}), 400
 
     # Decode jwt to get user_id
@@ -128,19 +127,19 @@ def submit_solution(problem_id):
     try:
         jwt = request.headers['Authorization']
         language = request.headers['language']
+        code_file = request.files['file']
+
+        assert vld.new_submission_validation(language)
     except Exception:
-        return 400
+        return jsonify({'error': 'Missing/Invalid input'}), 400
     
     # Decode jwt to get user_id
     user_id, code = decodeJWT(jwt)
     if code == 401:
         return jsonify({'error': 'JWT expired'}), 401
 
-    code = request.files['file']
-     
-    code_url = None
     try:
-        code_url = ctl.upload_file(code)    
+        code_url = ctl.upload_file(code_file)    
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
