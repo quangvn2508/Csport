@@ -14,7 +14,7 @@ export const DownloadFromUrl = (url) => {
         link.click();
     })
     .catch(err => {
-        console.log(err.response);
+        console.log(err.response.data.error);
     });
 }
 

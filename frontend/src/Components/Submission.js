@@ -58,9 +58,9 @@ class Submission extends React.Component {
         .catch(err => {
             if (err.response.status === 401) {
                 // invalid JWT
-                this.props.addError(err.response.body.error, 'Login session expired');
+                this.props.addError(err.response.data.error, 'Login session expired');
                 this.props.removeJwt();
-            } else this.props.addError(err.response.body.error);
+            } else this.props.addError(err.response.data.error);
         });
     }
     

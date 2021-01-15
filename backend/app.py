@@ -8,6 +8,7 @@ from Judge.JudgeQueue import JudgeQueue
 import validation.validation as vld
 
 app = Flask(__name__, static_url_path='/uploads')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 CORS(app, resources = { r"/api/*": { "origins": "*" } })
 
 # Login using OAuth2
@@ -68,7 +69,7 @@ def upload_file():
     try:
         file = request.files['file']
     except Exception:
-        return 400
+        return jsonify({'error': 'Missing/Invalid input'}), 400
     
     try:
         static_path = ctl.upload_file(file)    
