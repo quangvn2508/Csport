@@ -20,11 +20,11 @@ const mapDipatchToProps = {
 
 class Problem extends React.Component {
     state = {
-        title: "Title",
+        title: "",
         statement: "",
         problemId: this.props.match.params.problemId,
-        language: "py",
-        code: null,
+        language: null,
+        code: undefined,
         redirect: null
     }
     
@@ -39,11 +39,16 @@ class Problem extends React.Component {
             });
         })
         .catch(err => {
-            this.props.addError('Unable to get problem');
+            this.props.addError('Unable to get problem with id ' + this.state.problemId, err.response.status);
             this.setState({redirect: '/'});
         });
     }
 
+    validateInput = () => {
+        return  this.state.language !== null && 
+                this.state.code !== undefined && 
+                this.state.code.size / 1024 <= 128;
+    }
     changeLanguage = (value) => {this.setState({language: value});}
     updateFile = (event) => {this.setState({code: event.target.files[0]});}
     submitCode = (event) => {
@@ -67,9 +72,9 @@ class Problem extends React.Component {
         .catch(err => {
             if (err.response.status === 401) {
                 // invalid JWT
-                this.props.addError(err.response.body.error, 'Login session expired');
+                this.props.addError(err.response.data.error, 'Login session expired');
                 this.props.removeJwt();
-            } else this.props.addError(err.response.body.error);
+            } else this.props.addError(err.response.data.error);
         });
 
     }
@@ -85,14 +90,20 @@ class Problem extends React.Component {
                     <Row>
                         <Col xs={2}>
                             <Selection title="Language" update={this.changeLanguage} selection={[{value: "py", label: "Python3"}, {value: "cpp", label: "C++14"}]} />
+                            {
+                                this.state.language !== null &&
+                                <Form.Text muted>Limit: {this.state.language === 'py'? '2' : '1'}s 128Mb</Form.Text>
+                            }
+                            
                         </Col>
                         
                         <Col xs={4}>
                             <input type="file" accept=".cpp,.py" onChange={this.updateFile}/>
+                            <Form.Text muted>Maximum file size 128Kb</Form.Text>
                         </Col>
                         
                         <Col xs={2}>
-                            <Button type="submit" variant="secondary" size="sm">Submit</Button>
+                            <Button disabled={!this.validateInput()} type="submit" variant="secondary" size="sm">Submit</Button>
                         </Col>
                     </Row>
                 </Form>

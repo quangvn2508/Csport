@@ -5,8 +5,10 @@ from Account.oauth import OAuthSignIn
 from Account.jwt_util import encodeJWT, decodeJWT
 import db.controller as ctl
 from Judge.JudgeQueue import JudgeQueue
+import validation.validation as vld
 
 app = Flask(__name__, static_url_path='/uploads')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 CORS(app, resources = { r"/api/*": { "origins": "*" } })
 
 # Login using OAuth2
@@ -52,6 +54,7 @@ def user_profile():
     user_id, code = decodeJWT(jwt)
     if code == 401:
         return jsonify({'error': 'JWT expired'}), 401
+
     # Get user account from database with user_id
     user = ctl.get_user_account(user_id)
 
@@ -66,7 +69,7 @@ def upload_file():
     try:
         file = request.files['file']
     except Exception:
-        return 400
+        return jsonify({'error': 'Missing/Invalid input'}), 400
     
     try:
         static_path = ctl.upload_file(file)    
@@ -83,25 +86,25 @@ def create_problem():
         title = request.json['title']
         statement = request.json['statement']
         testcase_zip_url = request.json['testcase']
+
+        assert vld.new_post_validation(title, statement)
     except Exception:
-        return 400
+        return jsonify({'error': 'Missing/Invalid input'}), 400
 
     # Decode jwt to get user_id
     user_id, code = decodeJWT(jwt)
     if code == 401:
         return jsonify({'error': 'JWT expired'}), 401
 
-    # Decode jwt to get user_id
-    user_id = None
-    try:
-        user_id = decodeJWT(jwt)
-    except Exception as e:
-        return jsonify({"error": "Invalid jwt"}), 400
-
     # Create new problem and get id
     problem_id = ctl.create_new_problem(user_id, title, statement)
 
-    ctl.extract_testcase(testcase_zip_url, problem_id)
+    try:
+        ctl.extract_testcase(testcase_zip_url, problem_id)
+    except FileNotFoundError:
+        return jsonify({'error': 'Testcase URL not recognised'}), 400
+    except Exception:
+        return jsonify({'error': 'Invalid testcase URL'}), 400
 
     return jsonify({'problem_id': problem_id}), 200
 
@@ -125,19 +128,19 @@ def submit_solution(problem_id):
     try:
         jwt = request.headers['Authorization']
         language = request.headers['language']
+        code_file = request.files['file']
+
+        assert vld.new_submission_validation(language)
     except Exception:
-        return 400
+        return jsonify({'error': 'Missing/Invalid input'}), 400
     
     # Decode jwt to get user_id
     user_id, code = decodeJWT(jwt)
     if code == 401:
         return jsonify({'error': 'JWT expired'}), 401
 
-    code = request.files['file']
-     
-    code_url = None
     try:
-        code_url = ctl.upload_file(code)    
+        code_url = ctl.upload_file(code_file)    
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     

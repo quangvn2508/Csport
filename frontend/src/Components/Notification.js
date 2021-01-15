@@ -21,7 +21,7 @@ function Notification(props) {
         {
             props.notification !== null?
             (
-                <div className="noti-panel">
+                <div className="noti-panel" style={{zIndex: 100}}>
                     <Alert variant={props.notification.type} onClose={props.removeNotification} dismissible>
                         {props.notification.heading !== null? <Alert.Heading>{props.notification.heading}</Alert.Heading> : null}
                         {props.notification.body}

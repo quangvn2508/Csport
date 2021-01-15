@@ -62,7 +62,12 @@ class CreateProblem extends React.Component {
         ],
         placeholder: '# Your problem statement here'
     };
-    validateForm = () => { return true };
+
+    validateForm = () => {
+        return  this.state.title.length >= 6 && this.state.title.length <= 50 &&
+                this.state.statement.length >= 6 && this.state.statement.length <= 2000 &&
+                this.state.testcaseUrl !== null;
+    };
     updateTitle = (event) => { this.setState({ title: event.target.value }); };
     updateStatement = (value) => { this.setState({ statement: value }) };
 
@@ -89,9 +94,9 @@ class CreateProblem extends React.Component {
         .catch(err => {
             if (err.response.status === 401) {
                 // invalid JWT
-                this.props.addError(err.response.body.error, 'Login session expired');
+                this.props.addError(err.response.data.error, 'Login session expired');
                 this.props.removeJwt();
-            } else this.props.addError(err.response.body.error);
+            } else this.props.addError(err.response.data.error);
         });
     }
 
@@ -125,12 +130,13 @@ class CreateProblem extends React.Component {
                     <form onSubmit={this.submitNewProblem}>
                         <Form.Group>
                             <Form.Control type="text" value={this.state.title} onChange={this.updateTitle} placeholder="Problem title" />
+                            <Form.Text muted>Title must be 6-50 characters long</Form.Text>
                         </Form.Group>
                         <Form.Group controlId="formBasicEmail">
                             <Form.Control type="hidden" value={this.state.statement} placeholder="Problem title" />
 
                             <SimpleMDE ref={this.editor} onChange={this.updateStatement} options={this.editorOptions} />
-
+                            <Form.Text muted>Statement must be 6-2000 characters long</Form.Text>
                         </Form.Group>
                         <hr
                             style={{

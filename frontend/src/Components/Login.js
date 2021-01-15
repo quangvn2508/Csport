@@ -35,7 +35,7 @@ class Login extends React.Component {
         this.handleHide();
       })
       .catch(err => {
-        this.props.addError(err.response.body, err.response.status);
+        this.props.addError(err.response.data.error, err.response.status);
       });
   };
 

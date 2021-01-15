@@ -95,7 +95,7 @@ class Problems extends React.Component {
             this.setState({problemSet: data, filteredProblemSet: data, numberOfPage: Math.ceil(data.length / this.state.problemPerPage)});
         })
         .catch(err => {
-            this.props.addError('Unable to get problem list');
+            this.props.addError('Unable to get problem list', err.response.status);
             this.setState({redirect: '/'});
         });
     }

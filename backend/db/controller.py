@@ -8,7 +8,7 @@ from typing import List
 
 UPLOAD_FOLDER = 'uploads/'
 TESTCASE_FOLDER = 'testcases/'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg', 'gif', 'cpp', 'py'}
 
 def get_user_account(user_id: int) -> dict:
     user = UserDao.getInstance().get(user_id)
@@ -40,6 +40,9 @@ def file_extension_from_name(filename: str) -> str:
 def upload_file(file) -> str:
     # Get file extension
     fileExtension = file_extension_from_name(file.filename)
+
+    if not fileExtension in ALLOWED_EXTENSIONS:
+        raise Exception('File type not allowed')
 
     # TODO Check allowed extension
 
