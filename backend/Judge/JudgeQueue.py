@@ -2,6 +2,7 @@ from threading import Thread
 import queue
 import time
 import db.controller as ctl
+import db.file_util as ftl
 from Judge.sandbox import judge
 
 class JudgeQueue(queue.Queue):
@@ -40,6 +41,6 @@ def JudgeSubmission(submission_id: int):
 
     code_path, problem_id, code_language = submission['code_path'], submission['problem_id'], submission['language']
 
-    result = judge(code_path, ctl.problem_testcase_directory(problem_id), code_language)
+    result = judge(code_path, ftl.problem_testcase_directory(problem_id), code_language)
 
     ctl.finish_judge_submission(submission_id, result)
