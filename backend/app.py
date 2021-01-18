@@ -1,4 +1,4 @@
-import requests
+import request
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from Account.oauth import OAuthSignIn
