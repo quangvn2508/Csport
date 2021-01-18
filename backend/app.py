@@ -4,6 +4,7 @@ from flask_cors import CORS
 from Account.oauth import OAuthSignIn
 from Account.jwt_util import encodeJWT, decodeJWT
 import db.controller as ctl
+import db.file_util as ftl
 from Judge.JudgeQueue import JudgeQueue
 import validation.validation as vld
 
@@ -56,7 +57,7 @@ def user_profile():
         return jsonify({'error': 'JWT expired'}), 401
 
     # Get user account from database with user_id
-    user = ctl.get_user_account(user_id)
+    user = ctl.get_user(user_id)
 
     if user == None:
         return jsonify({'error': "User not found"}), 404
@@ -72,7 +73,7 @@ def upload_file():
         return jsonify({'error': 'Missing/Invalid input'}), 400
     
     try:
-        static_path = ctl.upload_file(file)    
+        static_path = ftl.upload_file(file)    
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
@@ -97,10 +98,10 @@ def create_problem():
         return jsonify({'error': 'JWT expired'}), 401
 
     # Create new problem and get id
-    problem_id = ctl.create_new_problem(user_id, title, statement)
+    problem_id = ctl.create_problem(user_id, title, statement)
 
     try:
-        ctl.extract_testcase(testcase_zip_url, problem_id)
+        ftl.extract_testcase(testcase_zip_url, problem_id)
     except FileNotFoundError:
         return jsonify({'error': 'Testcase URL not recognised'}), 400
     except Exception:
@@ -111,7 +112,7 @@ def create_problem():
 # Get problem list
 @app.route('/api/problems', methods=['GET'])
 def get_list_problems():
-    problems = ctl.get_list_problems()
+    problems = ctl.get_problems_all()
 
     return jsonify({'problems': problems}), 200
 
@@ -140,11 +141,11 @@ def submit_solution(problem_id):
         return jsonify({'error': 'JWT expired'}), 401
 
     try:
-        code_url = ctl.upload_file(code_file)    
+        code_url = ftl.upload_file(code_file)    
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
-    submission_id = ctl.add_submission(user_id, language, code_url, problem_id)
+    submission_id = ctl.create_submission(user_id, language, code_url, problem_id)
 
     # Add job to queue
     JudgeQueue.getInstance().add_submission(submission_id)
