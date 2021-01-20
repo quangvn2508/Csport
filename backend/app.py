@@ -32,7 +32,7 @@ def oauth_authorize(provider):
     
     # Check if corresponding user account exist in database
     if not ctl.registered_social_id(social_id):
-        ctl.create_new_account(social_id)
+        ctl.create_user(social_id)
 
     user_id = ctl.get_user_id(social_id)
 

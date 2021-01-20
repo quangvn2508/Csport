@@ -3,3 +3,4 @@ pyjwt==2.0.0
 requests==2.25.1
 flask_cors
 asyncio==3.4.3
+epicbox==1.1.0
