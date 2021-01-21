@@ -54,7 +54,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [ build-react, build-flask ]
-    # if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: deployment
         uses: fifsky/ssh-action@master
