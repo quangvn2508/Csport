@@ -51,3 +51,30 @@ jobs:
       # - name: Test with pytest
       #   run: pytest
       #   working-directory: backend
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [ build-react, build-flask ]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: deployment
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            tmux kill-session -t react;
+            tmux kill-session -t flask;
+            cd ~/Csport;
+            git reset --hard;
+            git pull;
+            cd frontend;
+            npm ci;
+            tmux new -d -s react;
+            tmux send-keys -t react "npm start" ENTER;
+            cd ../backend;
+            source env/bin/activate;
+            pip install -r requirements.txt;
+            tmux new -d -s flask;
+            tmux send-keys -t flask "sudo -i" ENTER;
+            tmux send-keys -t flask "cd /home/ubuntu/Csport/backend;source env/bin/activate;python app.py" ENTER;
+          host: ${{ secrets.HOST }}
+          user: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
