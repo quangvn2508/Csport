@@ -101,7 +101,7 @@ class CreateProblem extends React.Component {
     }
 
     downloadTestcase = () => {
-        DownloadFromUrl(this.state.testcaseUrl);
+        DownloadFromUrl(this.state.testcaseUrl, 'testcase.zip');
     }
 
     render() {
@@ -151,8 +151,9 @@ class CreateProblem extends React.Component {
                                 Problem's testcase
                             <Tooltip title="How zip file should looks like?" content={
                                     <>
-                                        <p>Contain input and output files <strong>input_[id].txt</strong> and <strong>output_[id].txt</strong></p>
-                                        <Button variant="secondary" href="/" target="_blank">Example testcase file</Button>
+                                        <p>Contain input and output files <strong>input_[No.].txt</strong> and <strong>output_[No.].txt</strong></p>
+                                        <p>(0 &#8804; No. &#8804; 19)</p>
+                                        <Button variant="secondary" onClick={() => DownloadFromUrl('/api/uploads/example_testcase.zip', 'example_testcase.zip')}>Example testcase file</Button>
                                     </>
                                 } />
                             </Form.Label>

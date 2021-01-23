@@ -109,22 +109,27 @@ class Problems extends React.Component {
             <Container>
                 <h1>Problems</h1>
                 <Row>
-                    <Col xs={2}>
+                    <Col sm={2}>
                         <div>Difficulty</div>
                     </Col>
-                    <Col xs={4}>
+                    <Col sm={4}>
                         <Slider value={this.state.filterDifficulty} onChange={this.updateDifficultyRange} valueLabelDisplay="auto" />
                     </Col>
-                    <Selection title=" Rank " update={this.updateRankFilter} selection={[
-                        {value: null, label: "No Filter"},
-                        {value: false, label: "Pending"},
-                        {value: true, label: "Ranked"}
-                    ]}/>
-                    <Selection title=" Status " update={this.updateStatusFilter} selection={[
-                        {value: null, label: "No Filter"},
-                        {value: false, label: "Todo"},
-                        {value: true, label: "Solved"}
-                    ]}/>
+                    <Col sm={3}>
+                        <Selection title=" Rank " update={this.updateRankFilter} selection={[
+                            {value: null, label: "No Filter"},
+                            {value: false, label: "Pending"},
+                            {value: true, label: "Ranked"}
+                        ]}/>
+                    </Col>
+                    <Col sm={3}>
+                        <Selection title=" Status " update={this.updateStatusFilter} selection={[
+                            {value: null, label: "No Filter"},
+                            {value: false, label: "Todo"},
+                            {value: true, label: "Solved"}
+                        ]}/>
+                    </Col>
+                    
                 </Row>
 
                 <PageController max={this.state.numberOfPage} size={5} current={this.state.currentPage} update={this.updatePageNumber}/>
