@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Pagination } from 'react-bootstrap';
 
-export const DownloadFromUrl = (url) => {
+export const DownloadFromUrl = (url, filename) => {
     axios.get(url, {
         responseType: 'blob'
     })
@@ -9,7 +9,7 @@ export const DownloadFromUrl = (url) => {
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'testcase.zip');
+        link.setAttribute('download', filename);
         document.body.appendChild(link);
         link.click();
     })

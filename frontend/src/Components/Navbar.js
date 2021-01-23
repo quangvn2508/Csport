@@ -25,7 +25,8 @@ function Navigation(props) {
             <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">
                     <Nav.Link href="/problems">Problems</Nav.Link>
-                    <Nav.Link href="/rank">Ranking</Nav.Link>
+                    <Nav.Link href="/createProblem">Contribute</Nav.Link>
+                    {/* <Nav.Link href="/rank">Ranking</Nav.Link> */}
                 </Nav>
                 <Nav>
                     {   props.jwt !== undefined?
