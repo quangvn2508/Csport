@@ -27,6 +27,9 @@ def create_user(social_id: str) -> int:
 def registered_social_id(social_id: str) -> bool:
     return UserDao.getInstance().get_with_social_id(social_id) != None
 
+def delete_user(social_id: str):
+    UserDao.getInstance().remove(social_id)
+
 # problem
 def create_problem(user_id: int, title: str, statement: str) -> int:
     return ProblemDao.getInstance().add(user_id, title, statement)

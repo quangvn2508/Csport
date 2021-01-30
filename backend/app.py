@@ -2,7 +2,7 @@ import requests
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from Account.oauth import OAuthSignIn
-from Account.jwt_util import encodeJWT, decodeJWT
+from Account.util import encodeJWT, decodeJWT, parse_fb_signed_request
 import db.controller as ctl
 import db.file_util as ftl
 from Judge.JudgeQueue import JudgeQueue
@@ -181,6 +181,19 @@ def get_submission(submission_id):
 @app.route('/api/uploads/<filename>', methods=['GET'])
 def static_dir(filename):
     return send_from_directory('uploads', filename)
+
+@app.route('/api/facebook/deletion', methods= ['POST'])
+def data_deletion_callback():
+    signed_request = request.form.get('signed_request')
+    data = parse_fb_signed_request(signed_request)
+
+    print(data['user_id'])
+    ctl.delete_user(data['user_id'])
+    
+    return jsonify({
+        'url': 'https://example.com/200',
+        'confirmation_code': '200'
+    })
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000)

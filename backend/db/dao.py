@@ -61,6 +61,10 @@ class UserDao(Dao):
         query = 'INSERT INTO user (username, social_id) VALUES (?,?)'
         return SqliteConnector.getInstance().db_query(query, (social_id, social_id)).lastrowid
 
+    def remove(self, social_id: str):
+        query = 'DELETE FROM user WHERE social_id=?'
+        SqliteConnector.getInstance().db_query(query, (social_id))
+
     @classmethod
     def getInstance(cls):
         return super().getInstance()
