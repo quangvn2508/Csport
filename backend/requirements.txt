@@ -4,4 +4,4 @@ requests==2.25.1
 flask_cors
 asyncio==3.4.3
 epicbox==1.1.0
-facepy==1.0.12
+simplejson==3.17.2
