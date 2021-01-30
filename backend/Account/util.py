@@ -1,10 +1,7 @@
 import jwt
 from datetime import datetime, timedelta
 from config import JWT_KEY, JWT_ALGORITHM, IDENTITY_PROVIDERS
-import base64
-import hashlib
-import hmac
-import json
+from facepy import SignedRequest
 
 def encodeJWT(user_id):
     payload = {
@@ -25,20 +22,6 @@ def decodeJWT(_jwt):
 
 
 def parse_fb_signed_request(signed_request):
-    encoded_sig, payload = signed_request.split('.', 2)
-    secret = IDENTITY_PROVIDERS['facebook']['clientSecret']
-
-    encoded_sig = encoded_sig.encode('ascii')
-    payload = payload.encode('ascii')
-    encoded_sig += "=" * ((4 - len(encoded_sig) % 4) % 4)
-    payload += "=" * ((4 - len(payload) % 4) % 4)
-
-    sig = base64.urlsafe_b64decode(encoded_sig)
-    data = json.loads(base64.urlsafe_b64decode(payload))
-
-    # check the signature
-    expected_sig = hmac.new(secret, payload, hashlib.sha256).digest()
-    if not hmac.compare_digest(expected_sig,sig):
-        return None
-    else:
-        return data
+    signed_request = SignedRequest(signed_request, IDENTITY_PROVIDERS['facebook']['clientSecret'])
+    
+    return signed_request.user.id

@@ -185,10 +185,10 @@ def static_dir(filename):
 @app.route('/api/facebook/deletion', methods= ['POST'])
 def data_deletion_callback():
     signed_request = request.form.get('signed_request')
-    data = parse_fb_signed_request(signed_request)
+    social_id = parse_fb_signed_request(signed_request)
 
-    print(data['user_id'])
-    ctl.delete_user(data['user_id'])
+    print(social_id)
+    ctl.delete_user(social_id)
     
     return jsonify({
         'url': 'https://example.com/200',
