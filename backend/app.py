@@ -88,7 +88,7 @@ def create_problem():
         statement = request.json['statement']
         testcase_zip_url = request.json['testcase']
 
-        assert vld.new_post_validation(title, statement)
+        assert vld.new_post_validation(title, statement, testcase_zip_url)
     except Exception:
         return jsonify({'error': 'Missing/Invalid input'}), 400
 

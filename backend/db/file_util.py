@@ -4,7 +4,7 @@ import zipfile
 
 UPLOAD_FOLDER = 'uploads/'
 TESTCASE_FOLDER = 'testcases/'
-ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg', 'gif', 'cpp', 'py'}
+ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg', 'gif', 'cpp', 'py', 'zip'}
 
 def file_url_to_file_path(file_url: str):
     """

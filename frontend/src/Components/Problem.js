@@ -53,6 +53,10 @@ class Problem extends React.Component {
     updateFile = (event) => {this.setState({code: event.target.files[0]});}
     submitCode = (event) => {
         event.preventDefault();
+        if (this.props.jwt === undefined) {
+            this.props.addError('Login to submit a solution', 'Unauthorize');
+            return;
+        }
         let data = new FormData();
 
         data.append('file', this.state.code);

@@ -30,7 +30,7 @@ function UploadPanel(props) {
       props.onSuccess(res.data.url);
     })
     .catch(err => {
-      addError(err.response.data.error, err.response.status);
+      props.addError(err.response.data.error, err.response.status);
     });
 
     setFile(undefined);
