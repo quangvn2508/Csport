@@ -29,7 +29,7 @@ def base64_url_decode(inp):
     inp += "="*padding_factor 
     return base64.b64decode(str(inp).translate(dict(zip(map(ord, u'-_'), u'+/'))))
 
-def parse_fb_signed_request(signed_request):
+def parse_fb_signed_request(signed_request) -> str:
     l = signed_request.split('.', 2)
     encoded_sig = l[0]
     payload = l[1]
@@ -45,4 +45,4 @@ def parse_fb_signed_request(signed_request):
     if sig != expected_sig:
         return None
     else:
-        return data
+        return data['user_id']
