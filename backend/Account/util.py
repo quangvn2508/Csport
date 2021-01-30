@@ -22,6 +22,6 @@ def decodeJWT(_jwt):
 
 
 def parse_fb_signed_request(signed_request):
-    signed_request = SignedRequest(signed_request, IDENTITY_PROVIDERS['facebook']['clientSecret'])
+    signed_request = SignedRequest(signed_request, IDENTITY_PROVIDERS['facebook']['clientSecret'], IDENTITY_PROVIDERS['facebook']['clientId'])
     
     return signed_request.user.id
