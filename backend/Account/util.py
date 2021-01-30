@@ -1,6 +1,6 @@
 import jwt
 from datetime import datetime, timedelta
-from config import JWT_KEY, JWT_ALGORITHM
+from config import JWT_KEY, JWT_ALGORITHM, IDENTITY_PROVIDERS
 import base64
 import hashlib
 import hmac
@@ -26,7 +26,7 @@ def decodeJWT(_jwt):
 
 def parse_fb_signed_request(signed_request):
     encoded_sig, payload = signed_request.split('.', 2)
-    secret = '<your_fb_app_secret>'
+    secret = IDENTITY_PROVIDERS['facebook']['clientSecret']
 
     encoded_sig = encoded_sig.encode('ascii')
     payload = payload.encode('ascii')
