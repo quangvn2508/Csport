@@ -27,10 +27,9 @@ def decodeJWT(_jwt):
 def base64_url_decode(inp):
     padding_factor = (4 - len(inp) % 4) % 4
     inp += "="*padding_factor 
-    return base64.b64decode(unicode(inp).translate(dict(zip(map(ord, u'-_'), u'+/'))))
+    return base64.b64decode(str(inp).translate(dict(zip(map(ord, u'-_'), u'+/'))))
 
-def parse_fb_signed_request(signed_request, secret):
-
+def parse_fb_signed_request(signed_request):
     l = signed_request.split('.', 2)
     encoded_sig = l[0]
     payload = l[1]
@@ -41,7 +40,7 @@ def parse_fb_signed_request(signed_request, secret):
     if data.get('algorithm').upper() != 'HMAC-SHA256':
         return None
     else:
-        expected_sig = hmac.new(secret, msg=payload, digestmod=hashlib.sha256).digest()
+        expected_sig = hmac.new(IDENTITY_PROVIDERS['facebook']['clientSecret'].encode('utf-8'), msg=payload.encode('utf-8'), digestmod=hashlib.sha256).digest()
 
     if sig != expected_sig:
         return None
